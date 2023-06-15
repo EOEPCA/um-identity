@@ -131,7 +131,7 @@ ingress:
 # ---------------------------------------
 service:
   type: ClusterIP
-  port: 8080
+  port: 8082
 
 serviceAccount:
   # Specifies whether a service account should be created

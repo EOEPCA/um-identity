@@ -8,7 +8,7 @@ RUN go install github.com/oauth2-proxy/oauth2-proxy/v7@latest
 # run identity-setup to configure the Identity
 FROM python:alpine as auth-proxy-server
 WORKDIR /app
-COPY identity_setup/ identity_setup/
+COPY identity-setup/ identity_setup/
 COPY utils/ identity_setup/src/utils/
 RUN pip install -r identity_setup/requirements.txt
 RUN python identity_setup/src/main.py
