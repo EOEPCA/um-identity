@@ -1,0 +1,131 @@
+# Default values for postgres.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# ---------------------------------------------
+# Variable used in configMaps template
+# ---------------------------------------------
+configMap:
+  postgresDb: keycloak
+  postgresUser: keycloak
+  postgresPassword: 123456
+  pgPassword: 123
+  pgData: /var/lib/postgresql/data/keycloak
+
+# ---------------------------------------------
+# Variable used in pv and pvc template
+# ---------------------------------------------
+persistence:
+  type: local
+  storageClassName: manual
+  storage: 1Gi
+  accessModes: |
+    - ReadWriteMany
+  hostPath:
+    path: "/data/postgresql"
+
+# ---------------------------------------------
+# Variable used in hpa template and deployment
+# ---------------------------------------------
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# ---------------------------------------
+# Variable used in Deployment template
+# ---------------------------------------
+deployment:
+  replicaCount: 1
+  # Additional Pod annotations
+  podAnnotations: {}
+  # Image pull secrets for the Pod
+  imagePullSecrets: []
+    # - name: myRegistrKeySecretName  
+  # SecurityContext for the entire Pod. Every container running in the Pod will inherit this SecurityContext. This might be relevant when other components of the environment inject additional containers into running Pods (service meshes are the most prominent example for this)
+  podSecurityContext:
+    fsGroup: 1000
+  # SecurityContext for the Keycloak container
+  securityContext: {}
+    # runAsUser: 0
+    # runAsNonRoot: false
+  image:
+    repository: postgres
+    pullPolicy: IfNotPresent
+  ## Overrides the default args for the Keycloak container
+  args: []
+  # Additional environment variables for Keycloak
+  extraEnv: ""
+  # Additional environment variables for Keycloak mapped from Secret or ConfigMap
+  extraEnvFrom: ""
+  # Define which port will be used in the containers
+  containerPort: 5432
+  # Define Volumes mount
+  volumeMountPath: /var/lib/postgresql/data
+  volumeMountName: postgresdata
+  volumes: |
+    - name: postgresdata
+      persistentVolumeClaim:
+        claimName: eoepca-userman-pvc
+  # Liveness probe configuration
+  livenessProbe: {}
+    # httpGet:
+    #   path: /
+    #   port: http
+    # initialDelaySeconds: 0
+    # timeoutSeconds: 5
+  # Readiness probe configuration
+  readinessProbe: {}
+    # httpGet:
+    #   path: /realms/master
+    #   port: http
+    # initialDelaySeconds: 30
+    # timeoutSeconds: 1
+  # Startup probe configuration
+  startupProbe: {}
+    # httpGet:
+    #   path: /
+    #   port: http
+    # initialDelaySeconds: 30
+    # timeoutSeconds: 1
+    # failureThreshold: 60
+    # periodSeconds: 5
+  # Pod resource requests and limits
+  resources: {}
+    # requests:
+    #   cpu: "500m"
+    #   memory: "1024Mi"
+    # limits:
+    #   cpu: "500m"
+    #   memory: "1024Mi"
+  # Node labels for Pod assignment
+  nodeSelector: {}
+  # Pod affinity
+  affinity: {}
+  # Node taints to tolerate
+  tolerations: []
+
+# ---------------------------------------
+# Variable group used in ingress template
+# ---------------------------------------
+service:
+  type: ClusterIP
+  port: 5432
+
+# ---------------------------------------
+# Variable group used in serviceaccount template
+# ---------------------------------------
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+volumeClaim:
+  name: eoepca-userman-pvc
+  create: false

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: identity-manager
+description: A helm chart for Identity Manager
+version: 1.0.0
+appVersion: "21.0"

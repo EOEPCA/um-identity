@@ -1,0 +1,8 @@
+version: "3.5"
+#services:
+ # TODO
+
+networks:
+  eoepca_network:
+    driver: bridge
+    name: eoepcanetwork

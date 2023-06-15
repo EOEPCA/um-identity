@@ -1,0 +1,24 @@
+identity-api:
+    enabled: true
+    deployment:
+        image:
+            repository: identity-api # TODO pull from ghcr.io
+            pullPolicy: IfNotPresent
+identity-manager:
+    enabled: true
+    deployment:
+        image:
+            repository: identity-manager # TODO pull from ghcr.io
+            pullPolicy: IfNotPresent
+keycloak:
+    enabled: true
+    deployment:
+        image:
+            repository: quay.io/keycloak/keycloak
+            pullPolicy: IfNotPresent
+postgres:
+    enabled: true
+    deployment:
+        image:
+            repository: postgres
+            pullPolicy: IfNotPresent
