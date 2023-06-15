@@ -1,7 +1,7 @@
 <!--
 ***
 *** To avoid retyping too much info. Do a search and replace for the following:
-*** um-buildingblock-template
+*** um-identity-service
 -->
 
 <!-- PROJECT SHIELDS -->
@@ -21,7 +21,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/EOEPCA/um-buildingblock-template">
+  <a href="https://github.com/EOEPCA/um-identity-service">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -29,22 +29,7 @@
 
   <p align="center">
     Identity service for EOEPCA project
-    <br />
-    <a href="https://github.com/EOEPCA/um-buildingblock-template"><strong>Explore the docs »</strong></a>
-    <br />
-    <a href="https://github.com/EOEPCA/um-buildingblock-template">View Demo</a>
-    ·
-    <a href="https://github.com/EOEPCA/um-buildingblock-template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/EOEPCA/um-buildingblock-template/issues">Request Feature</a>
-  </p>
 </p>
-
-## Setup for this template
-- Replace all "um-buildingblock-template" in readme with your repository's name
-- Edit docs to fit your repository
-- Un-comment the "notifications" segment in .travis.yml, and input the correct data for slack and/or emails you want to notify
-- Edit readme to fit your repository, and delete this part!
 
 ## Table of Contents
 
@@ -62,70 +47,91 @@
 - [Contact](#contact)
 - [Acknowledgements](#acknowledgements)
 
-<!-- ABOUT THE PROJECT -->
+### About The Project
 
-## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-Here's a blank template to get started:
-**To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`um-buildingblock-template`
+Identity offers seemingly authentication and authorization to be added to Applications.  
+Includes five main components:
+- **Keycloak integration**: Open Source Identity and Access Management.
+- **Identity Manager**: Web application using AngularJS and Angular Material to visually interact with the platform. Interacts with Identity API.
+- **Identity API**: API using Flask Framework to be consumed by Identity Manager. Interacts with Keycloak API.
+- **OAuth2 Proxy integration**: Authentication Proxy to enable seemless authentication and authorization to be added to Applications. Interacts with Keycloak.
+- **PostgreSQL**: SQL database for Keycloak to store data.
 
 ### Built With
 
-- [Javalin framework](https://javalin.io/)
-- [Log4j2](https://logging.apache.org/log4j/2.x/) + [YAML](https://yaml.org/)
-- [Junit 5](https://junit.org/junit5/)
-
-<!-- GETTING STARTED -->
+- [Keycloak](https://www.keycloak.org/)
+- [AngularJS](https://angularjs.org/) + [Angular Material](https://material.angular.io/)
+- [Flask Framework](https://flask.palletsprojects.com/en/2.3.x/)
+- [OAuth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/)
+- [PostgreSQL](https://www.postgresql.org/)
 
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
+Using Docker compose:
+
+```shell
+docker-compose up -d
+```
+
+Using Helm:
+
+```shell
+helm install identity infra
+```
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-
-- [Vagrant](https://www.vagrantup.com/docs/installation/)
-- [EOEPCA Development Environment](https://github.com/EOEPCA/dev-env)
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)  
+or
+- [Helm](https://helm.sh/)
+- [Kubernetes](https://kubernetes.io/)  
+- [Rancher](https://www.rancher.com/) (Optional)
 
 ### Installation
 
 1. Get into EOEPCA's development environment
 
-```sh
+```shell
 vagrant ssh
 ```
 
-3. Clone the repo
+2. Clone the repo
 
-```sh
-git clone https://github.com/EOEPCA/um-buildingblock-template.git
+```shell
+git clone https://github.com/EOEPCA/um-identity-service.git
 ```
 
-4. Change local directory
+3. Change local directory
 
-```sh
-cd template-service
+```shell
+cd um-identity-service
 ```
 
 ## Documentation
 
-The component documentation can be found at https://eoepca.github.io/um-buildingblock-template/.
+The component documentation can be found at https://eoepca.github.io/um-identity-service/.
 
 <!-- USAGE EXAMPLES -->
 
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+- **Docker-compose:**  
+`Identity-manager` >>>>> http://localhost:4200   
+`Identity-api` >>>>> http://localhost:8081  
+`Keycloak` >>>>> http://localhost:8080  
+`OAuth2 Proxy` >>>>> http://localhost:4180  
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+
+- **Helm charts:**  
+`Identity-manager` >>>>> https://identity.manager.local.eoepca.org  
+`Identity-api` >>>>> https://identity.api.local.eoepca.org  
+`Keycloak` >>>>> https://identity.keycloak.local.eoepca.org  
+`OAuth2 Proxy` >>>>> https://identity.proxy.local.eoepca.org  
 
 ## Roadmap
 
-See the [open issues](https://github.com/EOEPCA/um-buildingblock-template/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/EOEPCA/um-identity-service/issues) for a list of proposed features (and known issues).
 
 <!-- CONTRIBUTING -->
 
@@ -149,21 +155,21 @@ Distributed under the Apache-2.0 License. See `LICENSE` for more information.
 
 [EOEPCA mailbox](eoepca.systemteam@telespazio.com)
 
-Project Link: [https://github.com/EOEPCA/um-buildingblock-template](https://github.com/EOEPCA/um-buildingblock-template)
+Project Link: [https://github.com/EOEPCA/um-identity-service](https://github.com/EOEPCA/um-identity-service)
 
 ## Acknowledgements
 
 - README.md is based on [this template](https://github.com/othneildrew/Best-README-Template) by [Othneil Drew](https://github.com/othneildrew).
 
 
-[contributors-shield]: https://img.shields.io/github/contributors/EOEPCA/um-buildingblock-template.svg?style=flat-square
-[contributors-url]: https://github.com/EOEPCA/um-buildingblock-template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/EOEPCA/um-buildingblock-template.svg?style=flat-square
-[forks-url]: https://github.com/EOEPCA/um-buildingblock-template/network/members
-[stars-shield]: https://img.shields.io/github/stars/EOEPCA/um-buildingblock-template.svg?style=flat-square
-[stars-url]: https://github.com/EOEPCA/um-buildingblock-template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/EOEPCA/um-buildingblock-template.svg?style=flat-square
-[issues-url]: https://github.com/EOEPCA/um-buildingblock-template/issues
-[license-shield]: https://img.shields.io/github/license/EOEPCA/um-buildingblock-template.svg?style=flat-square
-[license-url]: https://github.com/EOEPCA/um-buildingblock-template/blob/master/LICENSE
-[build-shield]: https://www.travis-ci.com/EOEPCA/um-buildingblock-template.svg?branch=master
+[contributors-shield]: https://img.shields.io/github/contributors/EOEPCA/um-identity-service.svg?style=flat-square
+[contributors-url]: https://github.com/EOEPCA/um-identity-service/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/EOEPCA/um-identity-service.svg?style=flat-square
+[forks-url]: https://github.com/EOEPCA/um-identity-service/network/members
+[stars-shield]: https://img.shields.io/github/stars/EOEPCA/um-identity-service.svg?style=flat-square
+[stars-url]: https://github.com/EOEPCA/um-identity-service/stargazers
+[issues-shield]: https://img.shields.io/github/issues/EOEPCA/um-identity-service.svg?style=flat-square
+[issues-url]: https://github.com/EOEPCA/um-identity-service/issues
+[license-shield]: https://img.shields.io/github/license/EOEPCA/um-identity-service.svg?style=flat-square
+[license-url]: https://github.com/EOEPCA/um-identity-service/blob/master/LICENSE
+[build-shield]: https://www.travis-ci.com/EOEPCA/um-identity-service.svg?branch=master
