@@ -28,7 +28,7 @@
   <h3 align="center">Identity service</h3>
 
   <p align="center">
-    Template for developing an EOEPCA Service
+    Identity service for EOEPCA project
     <br />
     <a href="https://github.com/EOEPCA/um-buildingblock-template"><strong>Explore the docs »</strong></a>
     <br />
