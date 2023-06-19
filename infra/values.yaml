@@ -2,13 +2,13 @@ identity-api:
     enabled: true
     deployment:
         image:
-            repository: ghcr.io/identity-api
+            repository: ghcr.io/eoepca/um-identity-api:master
             pullPolicy: IfNotPresent
 identity-manager:
     enabled: true
     deployment:
         image:
-            repository: ghcr.io/identity-manager
+            repository: ghcr.io/eoepca/um-identity-manager:master
             pullPolicy: IfNotPresent
 keycloak:
     enabled: true
