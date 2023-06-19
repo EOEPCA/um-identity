@@ -1,0 +1,54 @@
+version: "3.5"
+services:
+    identity-manager:
+        build:
+            context: identity-manager
+            target: builder
+        image: identity-manager
+        container_name: identity-manager
+        networks:
+            - eoepca_network
+        ports:
+            - '4200:4200'
+        volumes:
+            - ./identity-manager:/app
+            - /app/node_modules
+    identity-api:
+        build:
+            context: .
+            dockerfile: identity-api/Dockerfile
+        image: identity-api
+        container_name: identity-api
+        networks:
+            - eoepca_network
+        ports:
+            - '8080:8081'
+        volumes:
+            - ./identity-api/config:/app/config
+    keycloak:
+        image: quay.io/keycloak/keycloak
+        container_name: keycloak
+        networks:
+            - eoepca_network
+        ports:
+            - '8080:8080'
+    postgres:
+        image: postgres
+        container_name: postgres
+        networks:
+            - eoepca_network
+        ports:
+            - '5432:5432'
+        volumes:
+            - ./postgres/data:/var/lib/postgresql/data
+    oauth2-proxy:
+        image: oauth2-proxy
+        container_name: oauth2-proxy
+        networks:
+            - eoepca_network
+        ports:
+            - '4180:4180'
+networks:
+    eoepca_network:
+        driver: bridge
+        name: eoepcanetwork

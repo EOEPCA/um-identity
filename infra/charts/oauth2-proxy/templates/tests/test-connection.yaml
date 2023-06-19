@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "oauth2-proxy.name" . }}-test-connection"
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "oauth2-proxy.name" . }}:{{ .Values.service.portNumber }}']
+  restartPolicy: Never
