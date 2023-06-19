@@ -116,16 +116,16 @@ ingress:
   enabled: true
   className: ""
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
-    - host: identity.keycloak.local.eoepca.org
+    - host: identity-keycloak.local.eoepca.org
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: keycloak-tls-certificate
       hosts:
-        - identity.keycloak.local.eoepca.org
+        - identity-keycloak.local.eoepca.org
 # ---------------------------------------
 # Variable group used in ingress template
 # ---------------------------------------

@@ -15,15 +15,15 @@ handlers:
 
   file:
     class: logging.handlers.RotatingFileHandler
-    filename: ../../logs/auth_proxy_server.log
+    filename: ../../logs/identity-setup.log
     formatter: verbose
     level: DEBUG
     maxBytes: 1073741824   ## 1 GB log file size before rotation
     backupCount: 10        ## Saves 10 most recent log files
 
 loggers:
-  AUTH_PROXY_SERVER:
+    IDENTITY_SETUP:
     level: DEBUG
     handlers: [ console, file ]
-    qualname: AUTH_PROXY_SERVER
+    qualname: IDENTITY_SETUP
     propagate: false

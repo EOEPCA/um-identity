@@ -43,6 +43,7 @@
 - [Usage](#usage)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
+- [Debug](#debug)
 - [License](#license)
 - [Contact](#contact)
 - [Acknowledgements](#acknowledgements)
@@ -53,7 +54,7 @@ Identity offers seemingly authentication and authorization to be added to Applic
 Includes five main components:
 - **Keycloak integration**: Open Source Identity and Access Management.
 - **Identity Manager**: Web application using AngularJS and Angular Material to visually interact with the platform. Interacts with Identity API.
-- **Identity API**: API using Flask Framework to be consumed by Identity Manager. Interacts with Keycloak API.
+- **Identity API**: Restful API using Flask Framework to be consumed by Identity Manager. Interacts with Keycloak API.
 - **OAuth2 Proxy integration**: Authentication Proxy to enable seemless authentication and authorization to be added to Applications. Interacts with Keycloak.
 - **PostgreSQL**: SQL database for Keycloak to store data.
 
@@ -117,17 +118,17 @@ The component documentation can be found at https://eoepca.github.io/um-identity
 ## Usage
 
 - **Docker-compose:**  
-`Identity-manager` >>>>> http://localhost:4200   
-`Identity-api` >>>>> http://localhost:8081  
-`Keycloak` >>>>> http://localhost:8080  
-`OAuth2 Proxy` >>>>> http://localhost:4180  
+`Identity-manager` - http://localhost:4200   
+`Identity-api` - http://localhost:8081  
+`Keycloak` - http://localhost:8080  
+`OAuth2 Proxy` - http://localhost:4180  
 
 
 - **Helm charts:**  
-`Identity-manager` >>>>> https://identity.manager.local.eoepca.org  
-`Identity-api` >>>>> https://identity.api.local.eoepca.org  
-`Keycloak` >>>>> https://identity.keycloak.local.eoepca.org  
-`OAuth2 Proxy` >>>>> https://identity.proxy.local.eoepca.org  
+`Identity-manager` - https://identity-manager.local.eoepca.org  
+`Identity-api` - https://identity-api.local.eoepca.org  
+`Keycloak` - https://identity-keycloak.local.eoepca.org  
+`OAuth2 Proxy` - https://identity-proxy.local.eoepca.org  
 
 ## Roadmap
 
@@ -144,6 +145,35 @@ Contributions are what make the open source community such an amazing place to b
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+## Debug
+
+Debug Helm Charts:
+
+```shell
+cd infra/charts/oxauth2-proxy
+helm template oauth2-proxy --debug . > oauth2-proxy-charts.log
+```
+
+```shell
+cd infra/charts/keycloak
+helm template keycloak --debug . > keycloak-charts.log
+```
+
+```shell
+cd infra/charts/identity-api
+helm template identity-api --debug . > identity-api-charts.log
+```
+
+```shell
+cd infra/charts/identity-manager
+helm template identity-manager --debug . > identity-manager-charts.log
+```
+
+```shell
+cd infra/charts/postgres
+helm template postgres --debug . > postgres-charts.log
+```
 
 <!-- LICENSE -->
 

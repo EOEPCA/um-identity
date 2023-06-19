@@ -8,6 +8,9 @@ dependencies:
     - name: keycloak
       condition: keycloak.enabled
       version: 1.0.0
+    - name: oauth2-proxy
+      condition: oauth2-proxy.enabled
+      version: 1.0.0
     - name: postgres
       condition: postgres.enabled
       version: 1.0.0

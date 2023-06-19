@@ -10,7 +10,7 @@ from utils.keycloak_client import KeycloakClient
 config_path = os.path.join(os.path.dirname(__file__), "../conf/config.ini")
 keycloak_config_path = os.path.join(os.path.dirname(__file__), "../conf/keycloak.cfg")
 logger.Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
-logger = logging.getLogger("AUTH_PROXY_SERVER")
+logger = logging.getLogger("IDENTITY_SETUP")
 
 
 def register_default_resources():

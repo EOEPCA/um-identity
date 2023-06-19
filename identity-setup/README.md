@@ -1,7 +1,8 @@
-# Keycloak setup
+# Identity setup
 
-Python script to setup the Identity.
+Script to set up the Identity.
 
+- Registers default realms
 - Registers default users
 - Registers needed clients
 - Registers default resources
@@ -9,6 +10,6 @@ Python script to setup the Identity.
 ### Build and Execute
 
 ```shell
-docker build -f identity_setup/Dockerfile . -t identity-setup
+docker build -f identity-setup/Dockerfile . -t identity-setup
 docker run --rm -d --name identity-setup identity-setup
 ```

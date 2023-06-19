@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "keycloak.name" . }}
+  name: {{ include "identity-api.name" . }}
   labels:
-    {{- include "keycloak.labels" . | nindent 4 }}
+    {{- include "identity-api.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.deployment.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "keycloak.selectorLabels" . | nindent 6 }}
+      {{- include "identity-api.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.deployment.podAnnotations }}
@@ -18,13 +18,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "keycloak.selectorLabels" . | nindent 8 }}
+        {{- include "identity-api.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.deployment.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "keycloak.serviceAccountName" . }}
+      serviceAccountName: {{ include "identity-api.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.deployment.podSecurityContext | nindent 8 }}
       containers:

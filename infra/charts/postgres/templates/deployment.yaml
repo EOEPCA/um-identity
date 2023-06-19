@@ -50,17 +50,14 @@ spec:
           volumeMounts:
             - mountPath: {{ .Values.deployment.volumeMountPath }}
               name: {{ .Values.deployment.volumeMountName }}
-          #
           {{- with .Values.deployment.livenessProbe }}
           livenessProbe:
             {{- tpl . $ | nindent 12 }}
           {{- end }}
-          #
           {{- with .Values.deployment.readinessProbe }}
           readinessProbe:
             {{- tpl . $ | nindent 12 }}
           {{- end }}
-          #
           {{- with .Values.deployment.startupProbe }}
           startupProbe:
             {{- tpl . $ | nindent 12 }}

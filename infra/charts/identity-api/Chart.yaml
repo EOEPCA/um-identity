@@ -2,4 +2,4 @@ apiVersion: v2
 name: identity-api
 description: A helm chart for Identity API
 version: 1.0.0
-appVersion: "21.0"
+appVersion: "latest"

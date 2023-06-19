@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "keycloak.name" . }}-test-connection"
+  name: "{{ include "oauth2-proxy.name" . }}-test-connection"
   annotations:
     "helm.sh/hook": test
 spec:
@@ -9,5 +9,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "keycloak.name" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "oauth2-proxy.name" . }}:{{ .Values.service.portNumber }}']
   restartPolicy: Never
