@@ -1,28 +1,19 @@
 version: "3.5"
 services:
     identity-manager:
-        image: identity-manager
+        build: https://github.com/EOEPCA/um-identity-manager#master
         container_name: identity-manager
         networks:
             - eoepca_network
         ports:
-            - '4200:4200'
+            - '4200:80'
     identity-api:
-        image: identity-api
+        build: https://github.com/EOEPCA/um-identity-api#master
         container_name: identity-api
         networks:
             - eoepca_network
         ports:
-            - '8081:8080'
-        environment:
-            - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
-            - KEYCLOAK_ADMIN_USERNAME=admin
-            - KEYCLOAK_ADMIN_PASSWORD=admin_Abcd1234#
-            - KEYCLOAK_REALM=dummy-service
-            - KEYCLOAK_RESOURCE_SERVER_ENDPOINT=https://dummy-service.develop.eoepca.org
-            - SWAGGER_URL=/swagger-ui
-            - SWAGGER_API_URL=/swagger-ui-api
-            - SWAGGER_APP_NAME=Identity API
+            - '8080:8081'
     keycloak:
         image: quay.io/keycloak/keycloak:21.0
         container_name: keycloak
@@ -65,14 +56,6 @@ services:
             - eoepca_network
         ports:
             - '4180:4180'
-        depends_on:
-            - keycloak
-        healthcheck:
-            test: [ "CMD", "curl", "-f", "http://keycloak:8080" ]
-            interval: 30s
-            timeout: 10s
-            retries: 5
-        restart: on-failure
         environment:
             - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
             - OAUTH2_PROXY_COOKIE_SECURE=true
@@ -89,10 +72,10 @@ services:
             # keycloak provider
             - OAUTH2_PROXY_CLIENT_ID=oauth2-proxy
             - OAUTH2_PROXY_CLIENT_SECRET=secret
-            - OAUTH2_PROXY_REDIRECT_URL=https://localhost:4180/oauth2/callback
+            - OAUTH2_PROXY_REDIRECT_URL=https://identity-proxy.local.eoepca.org/oauth2/callback
             # in this case oauth2-proxy is going to visit
-            # http://keycloak:8080/realms/dummy-service/.well-known/openid-configuration for configuration
-            - OAUTH2_PROXY_OIDC_ISSUER_URL=http://keycloak:8080/realms/dummy-service
+            # https://identity-keycloak.local.eoepca.org/realms/dummy-service/.well-known/openid-configuration for configuration
+            - OAUTH2_PROXY_OIDC_ISSUER_URL=https://identity-keycloak.local.eoepca.org/realms/dummy-service
             - OAUTH2_PROXY_PROVIDER=oidc
             - OAUTH2_PROXY_PROVIDER_DISPLAY_NAME=Keycloak
 networks:

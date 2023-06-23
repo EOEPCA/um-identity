@@ -14,7 +14,8 @@ class KeycloakClient:
             server_url=server_url,
             username=username,
             password=password,
-            verify=True)
+            verify=True,
+            timeout=10)
         self.keycloak_admin = KeycloakAdmin(connection=openid_connection)
         self.admin_client = None
         self.resources_client = None
@@ -32,7 +33,8 @@ class KeycloakClient:
             username=self.keycloak_admin.username,
             password=self.keycloak_admin.password,
             client_id=self.admin_client.get('clientId'),
-            verify=True)
+            verify=True,
+            timeout=10)
         self.keycloak_admin = KeycloakAdmin(connection=openid_connection)
         self.__register_resources_client('resources-management')
 
