@@ -4,7 +4,7 @@ import logging
 
 from elasticsearch import Elasticsearch
 
-logger = logging.getLogger("PEP")
+logger = logging.getLogger("IDENTITY_UTILS")
 
 
 class ElasticSearch:

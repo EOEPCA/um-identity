@@ -37,7 +37,7 @@ deployment:
     runAsUser: 1000
     runAsNonRoot: true
   image:
-    repository: ghcr.io/eoepca/um-identity-manager:master
+    repository: ghcr.io/eoepca/um-identity-manager
     pullPolicy: IfNotPresent
 
   # Define which port will be used in the containers

@@ -4,7 +4,7 @@ import os
 import re
 from configparser import ConfigParser
 
-logger = logging.getLogger("PEP")
+logger = logging.getLogger("IDENTITY_UTILS")
 config = ConfigParser()
 
 
@@ -13,9 +13,9 @@ def load_configuration(path: os.PathLike | str) -> ConfigParser:
     Loads entire configuration into memory
     """
     conf = __load_configuration_file(path)
-    # load environment variables
+    # load environment variables related to Keycloak config
     for c in conf['Keycloak'].keys():
-        v = os.environ.get('PEP_' + c.upper())
+        v = os.environ.get('KEYCLOAK_' + c.upper().replace("-", "_"))
         if v:
             v = v.replace('"', '')
             config['Keycloak'][c] = v
