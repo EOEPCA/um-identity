@@ -10,14 +10,14 @@ logger = logging.getLogger("IDENTITY_UTILS")
 class KeycloakClient:
 
     def __init__(self, server_url, realm, resource_server_endpoint, username, password):
-        self.server_url = server_url + '/auth'
+        self.server_url = server_url + '/auth/'
         self.realm = realm
         self.resource_server_endpoint = resource_server_endpoint
         openid_connection = KeycloakOpenIDConnection(
             server_url=self.server_url,
             username=username,
             password=password,
-            verify=True,
+            verify=self.server_url.startswith('https'),
             timeout=10)
         self.keycloak_admin = KeycloakAdmin(connection=openid_connection)
         self.admin_client = None
@@ -36,7 +36,7 @@ class KeycloakClient:
             username=self.keycloak_admin.username,
             password=self.keycloak_admin.password,
             client_id=self.admin_client.get('clientId'),
-            verify=True,
+            verify=self.server_url.startswith('https'),
             timeout=10)
         self.keycloak_admin = KeycloakAdmin(connection=openid_connection)
         self.__register_resources_client('resources-management')
@@ -329,7 +329,7 @@ class KeycloakClient:
             {"resource_id": resource} for resource in resources
         ]
         data = self.keycloak_uma.connection.raw_post(
-            f"${self.keycloak_uma.connection.base_url}/realms/{self.realm}/authz/protection/permission",
+            f"${self.keycloak_uma.connection.base_url}realms/{self.realm}/authz/protection/permission",
             data=json.dumps(payload)
         )
         return raise_error_from_response(data, KeycloakPostError)
@@ -415,7 +415,8 @@ class KeycloakClient:
             realm_name=self.realm,
             client_id=self.resources_client.get('clientId'),
             client_secret_key=self.resources_client.get('secret'),
-            verify=True))
+            verify=self.server_url.startswith('https')
+        ))
         self.keycloak_uma_openid = KeycloakOpenID(server_url=self.server_url,
                                                   realm_name=self.realm,
                                                   client_id=self.resources_client.get('clientId'),
@@ -424,5 +425,5 @@ class KeycloakClient:
 
     def __get_service_account_user(self, client_id: str):
         data_raw = self.keycloak_admin.connection.raw_get(
-            self.server_url + '/admin/realms/' + self.realm + '/clients/' + client_id + '/service-account-user')
+            self.server_url + 'admin/realms/' + self.realm + '/clients/' + client_id + '/service-account-user')
         return raise_error_from_response(data_raw, KeycloakGetError)
