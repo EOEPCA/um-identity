@@ -349,6 +349,7 @@ config:
     cookie_domains = [".eoepca.org"] # Required so cookie can be read on all subdomains.
     whitelist_domains = [".eoepca.org"] # Required to allow redirection back to original requested target.
     pass_access_token = true
+    set_xauthrequest = true
     # allow accounts to sign-in with empty emails
     # https://github.com/oauth2-proxy/oauth2-proxy/issues/769#issuecomment-808916298
     email_domains = ["*"]
@@ -363,3 +364,5 @@ config:
     oidc_issuer_url = "https://identity-keycloak.local.eoepca.org/realms/dummy-service"
     provider = "oidc"
     provider_display_name = "Keycloak"
+    skip_provider_button = true
+    skip_jwt_bearer_tokens = true
