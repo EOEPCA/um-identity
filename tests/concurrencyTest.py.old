@@ -21,7 +21,7 @@ def get_jwt(client_id, client_secret):
         "scope": "openid user_name is_operator profile permission clientinfo",
         "grant_type": "password",
         "username": "admin",
-        "password": "admin_Abcd1234#",
+        "password": "admin",
         "client_id": client_id,
         "client_secret": client_secret
     }

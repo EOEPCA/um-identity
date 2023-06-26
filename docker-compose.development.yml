@@ -30,7 +30,7 @@ services:
             - KEYCLOAK_LOGLEVEL=DEBUG
             - WILDFLY_LOGLEVEL=DEBUG
             - KEYCLOAK_ADMIN=admin
-            - KEYCLOAK_ADMIN_PASSWORD=admin_Abcd1234#
+            - KEYCLOAK_ADMIN_PASSWORD=admin
             - KC_PROXY=edge
             - KC_HOSTNAME_STRICT=false
             - KC_DB=postgres

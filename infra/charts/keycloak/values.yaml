@@ -52,7 +52,7 @@ deployment:
     - name: KEYCLOAK_ADMIN
       value: "admin"
     - name: KEYCLOAK_ADMIN_PASSWORD
-      value: "admin_Abcd1234#"
+      value: "admin"
     - name: KC_PROXY
       value: "edge"
     - name: "KC_HOSTNAME_STRICT"
