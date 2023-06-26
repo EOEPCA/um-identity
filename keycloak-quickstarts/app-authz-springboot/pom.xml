@@ -106,6 +106,17 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${springboot-version}</version>
+                <configuration>
+                    <mainClass>org.keycloak.quickstart.springboot.MyApplication</mainClass>
+                    <layout>JAR</layout>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -118,6 +129,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>

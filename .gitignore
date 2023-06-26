@@ -38,3 +38,5 @@ terraform.tfstate.backup
 .terraform
 
 postgres
+
+*.egg-info

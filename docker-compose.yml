@@ -137,14 +137,14 @@ services:
             - "80:80"
             - "443:443"
         restart: on-failure
-#    demo:
-#        image: keycloak-springboot-demo
-#        container_name: keycloak-springboot-demo
-#        networks:
-#            - eoepca_network
-#        ports:
-#            - "7070:7070"
-#        restart: on-failure
+    demo:
+        image: keycloak-springboot-demo
+        container_name: keycloak-springboot-demo
+        networks:
+            - eoepca_network
+        ports:
+            - "7070:7070"
+        restart: on-failure
 networks:
     eoepca_network:
         driver: bridge
