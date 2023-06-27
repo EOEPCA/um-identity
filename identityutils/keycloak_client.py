@@ -77,7 +77,7 @@ class KeycloakClient:
         return self.keycloak_uma.resource_set_delete(resource_id)
 
     def __register_policy(self, policy, register_f):
-        client_id = self.admin_client.get('id')
+        client_id = self.resources_client.get('id')
         logger.info("Creating policy:\n" + json.dumps(policy, indent=2))
         response = register_f(client_id=client_id, payload=policy, skip_exists=True)
         logger.info("Response: " + str(response))
@@ -146,7 +146,7 @@ class KeycloakClient:
             "roles": [
                 {
                     "id": role,
-                    "required": False
+                    "required": True
                 } for role in roles
             ]
         }
@@ -361,8 +361,8 @@ class KeycloakClient:
         all_roles = self.keycloak_admin.get_realm_roles(brief_representation=False)
         realm_roles = list(filter(lambda role: role.get('name') in roles, all_roles))
         if not realm_roles:
-            logger.warning("Realm roles " + str(roles) + " do no exist on realm " + self.realm)
-        logger.info('realm roles ' + json.dumps(realm_roles, indent=2))
+            logger.warning("Warning: Realm roles " + str(roles) + " do no exist on realm " + self.realm)
+            return
         realm_roles = [
             {
                 "id": role.get('id'),
