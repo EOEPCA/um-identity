@@ -358,7 +358,7 @@ class KeycloakClient:
         for r in roles:
             created_role = self.create_realm_role(r)
             logger.info("Created realm role: " + str(created_role))
-        all_roles = self.keycloak_admin.get_realm_roles()
+        all_roles = self.keycloak_admin.get_realm_roles(brief_representation=False)
         realm_roles = list(filter(lambda role: role.get('name') in roles, all_roles))
         if not realm_roles:
             logger.warning("Realm roles " + str(roles) + " do no exist on realm " + self.realm)
