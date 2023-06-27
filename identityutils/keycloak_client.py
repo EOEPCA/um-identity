@@ -358,10 +358,16 @@ class KeycloakClient:
         for r in roles:
             created_role = self.create_realm_role(r)
             logger.info("Created realm role: " + str(created_role))
-        all_roles = self.keycloak_admin.get_realm_roles(brief_representation=True)
+        all_roles = self.keycloak_admin.get_realm_roles()
         realm_roles = list(filter(lambda role: role.get('name') in roles, all_roles))
         if not realm_roles:
             logger.warning("Realm roles " + str(roles) + " do no exist on realm " + self.realm)
+        realm_roles = [
+            {
+                "id": role.id,
+                "name": role.name
+            } for role in realm_roles
+        ]
         logger.info('Assigning roles to user ' + user_id + ':\n' + json.dumps(realm_roles, indent=2))
         self.keycloak_admin.assign_realm_roles(user_id=user_id, roles=[realm_roles])
 
