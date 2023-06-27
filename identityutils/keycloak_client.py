@@ -77,7 +77,7 @@ class KeycloakClient:
         return self.keycloak_uma.resource_set_delete(resource_id)
 
     def __register_policy(self, policy, register_f):
-        client_id = self.resources_client.get('clientId')
+        client_id = self.resources_client.get('id')
         logger.info("Creating policy:\n" + json.dumps(policy, indent=2))
         response = register_f(client_id=client_id, payload=policy, skip_exists=True)
         logger.info("Response: " + str(response))
