@@ -7,15 +7,15 @@ services:
             - eoepca_network
         environment:
             - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
-        #restart: on-failure
-    identity-manager:
-        image: identity-manager
-        container_name: identity-manager
-        networks:
-            - eoepca_network
-        ports:
-            - '4200:4200'
-        restart: on-failure
+    #        restart: on-failure
+#    identity-manager:
+#        image: identity-manager
+#        container_name: identity-manager
+#        networks:
+#            - eoepca_network
+#        ports:
+#            - '4200:4200'
+#        restart: on-failure
     identity-api:
         image: identity-api
         container_name: identity-api
@@ -32,7 +32,7 @@ services:
             - SWAGGER_URL=/swagger-ui
             - SWAGGER_API_URL=/swagger-ui-api
             - SWAGGER_APP_NAME=Identity API
-        #restart: on-failure
+        restart: on-failure
     keycloak:
         image: quay.io/keycloak/keycloak:21.0
         container_name: keycloak
@@ -78,73 +78,73 @@ services:
             - PGPASSWORD=123
             - PGDATA=/var/lib/postgresql/data/keycloak
         restart: on-failure
-    oauth2-proxy:
-        image: quay.io/oauth2-proxy/oauth2-proxy:v7.4.0
-        container_name: oauth2-proxy
-        networks:
-            - eoepca_network
-        ports:
-            - '4180:4180'
-        depends_on:
-            - keycloak
-        healthcheck:
-            test: [ "CMD", "curl", "-k", "-f", "http://oauth2-proxy:4180" ]
-            interval: 10s
-            timeout: 1s
-            retries: 15
-        restart: on-failure
-        environment:
-            - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
-            - OAUTH2_PROXY_COOKIE_SECURE=true
-            - OAUTH2_PROXY_COOKIE_SECRET=JxJZrvNo4z1VJIiDMDGJe3q4TjmpVxMNHziW97J9UAo=
-            - OAUTH2_PROXY_UPSTREAMS=https://dummy-service.develop.eoepca.org
-            - OAUTH2_PROXY_COOKIE_DOMAINS=localhost:80 # Required so cookie can be read on all subdomains.
-            - OAUTH2_PROXY_WHITELIST_DOMAINS=localhost:80 # Required to allow redirection back to original requested target.
-            - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
-            - OAUTH2_PROXY_SET_XAUTHREQUEST=true
-            # allow accounts to sign-in with empty emails
-            # https://github.com/oauth2-proxy/oauth2-proxy/issues/769#issuecomment-808916298
-            - OAUTH2_PROXY_EMAIL_DOMAINS=*
-            - OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL=true
-            - OAUTH2_PROXY_OIDC_EMAIL_CLAIM=sub
-            # keycloak provider
-            - OAUTH2_PROXY_CLIENT_ID=oauth2-proxy
-            - OAUTH2_PROXY_CLIENT_SECRET=secret
-            - OAUTH2_PROXY_REDIRECT_URL=http://localhost:80/oauth2/callback
-            - OAUTH2_PROXY_OIDC_ISSUER_URL=http://keycloak:8080/auth/realms/dummy-service
-            #- OAUTH2_PROXY_REDEEM_URL=http://keycloak:8080/realms/dummy-service/protocol/openid-connect/token
-            #- OAUTH2_PROXY_OIDC_JWKS_URL=http://keycloak:8080/realms/dummy-service/protocol/openid-connect/certs
-            #- OAUTH2_PROXY_LOGIN_URL=http://keycloak:8080/realms/dummy-service/protocol/openid-connect/auth
-            # skip oidc discovery to supply urls with 'localhost' instead of 'keycloak'
-            #- OAUTH2_PROXY_SKIP_OIDC_DISCOVERY=false
-            - OAUTH2_PROXY_PROVIDER=oidc
-            - OAUTH2_PROXY_PROVIDER_DISPLAY_NAME=Keycloak
-            - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON=true
-            - OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS=true
-    nginx:
-        image: nginx:1.25.1-alpine
-        container_name: nginx
-        networks:
-            - eoepca_network
-        depends_on:
-            - oauth2-proxy
-            - keycloak
-        volumes:
-            - ./nginx/default.conf:/etc/nginx/templates/default.conf.template
-            #- ./nginx/letsencrypt:/etc/nginx/cert
-            - ./nginx/www:/data/www
-        ports:
-            - "80:80"
-            - "443:443"
-        restart: on-failure
-    demo:
-        image: keycloak-springboot-demo
-        container_name: keycloak-springboot-demo
-        networks:
-            - eoepca_network
-        ports:
-            - "7070:7070"
-        restart: on-failure
+#    oauth2-proxy:
+#        image: quay.io/oauth2-proxy/oauth2-proxy:v7.4.0
+#        container_name: oauth2-proxy
+#        networks:
+#            - eoepca_network
+#        ports:
+#            - '4180:4180'
+#        depends_on:
+#            - keycloak
+#        healthcheck:
+#            test: [ "CMD", "curl", "-k", "-f", "http://oauth2-proxy:4180" ]
+#            interval: 10s
+#            timeout: 1s
+#            retries: 15
+#        restart: on-failure
+#        environment:
+#            - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
+#            - OAUTH2_PROXY_COOKIE_SECURE=true
+#            - OAUTH2_PROXY_COOKIE_SECRET=JxJZrvNo4z1VJIiDMDGJe3q4TjmpVxMNHziW97J9UAo=
+#            - OAUTH2_PROXY_UPSTREAMS=https://dummy-service.develop.eoepca.org
+#            - OAUTH2_PROXY_COOKIE_DOMAINS=localhost:80 # Required so cookie can be read on all subdomains.
+#            - OAUTH2_PROXY_WHITELIST_DOMAINS=localhost:80 # Required to allow redirection back to original requested target.
+#            - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
+#            - OAUTH2_PROXY_SET_XAUTHREQUEST=true
+#            # allow accounts to sign-in with empty emails
+#            # https://github.com/oauth2-proxy/oauth2-proxy/issues/769#issuecomment-808916298
+#            - OAUTH2_PROXY_EMAIL_DOMAINS=*
+#            - OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL=true
+#            - OAUTH2_PROXY_OIDC_EMAIL_CLAIM=sub
+#            # keycloak provider
+#            - OAUTH2_PROXY_CLIENT_ID=oauth2-proxy
+#            - OAUTH2_PROXY_CLIENT_SECRET=secret
+#            - OAUTH2_PROXY_REDIRECT_URL=http://localhost:80/oauth2/callback
+#            - OAUTH2_PROXY_OIDC_ISSUER_URL=http://keycloak:8080/auth/realms/dummy-service
+#            #- OAUTH2_PROXY_REDEEM_URL=http://keycloak:8080/realms/dummy-service/protocol/openid-connect/token
+#            #- OAUTH2_PROXY_OIDC_JWKS_URL=http://keycloak:8080/realms/dummy-service/protocol/openid-connect/certs
+#            #- OAUTH2_PROXY_LOGIN_URL=http://keycloak:8080/realms/dummy-service/protocol/openid-connect/auth
+#            # skip oidc discovery to supply urls with 'localhost' instead of 'keycloak'
+#            #- OAUTH2_PROXY_SKIP_OIDC_DISCOVERY=false
+#            - OAUTH2_PROXY_PROVIDER=oidc
+#            - OAUTH2_PROXY_PROVIDER_DISPLAY_NAME=Keycloak
+#            - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON=true
+#            - OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS=true
+#    nginx:
+#        image: nginx:1.25.1-alpine
+#        container_name: nginx
+#        networks:
+#            - eoepca_network
+#        depends_on:
+#            - oauth2-proxy
+#            - keycloak
+#        volumes:
+#            - ./nginx/default.conf:/etc/nginx/templates/default.conf.template
+#            #- ./nginx/letsencrypt:/etc/nginx/cert
+#            - ./nginx/www:/data/www
+#        ports:
+#            - "80:80"
+#            - "443:443"
+#        restart: on-failure
+#    demo:
+#        image: keycloak-springboot-demo
+#        container_name: keycloak-springboot-demo
+#        networks:
+#            - eoepca_network
+#        ports:
+#            - "7070:7070"
+#        #restart: on-failure
 networks:
     eoepca_network:
         driver: bridge

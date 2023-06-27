@@ -29,6 +29,7 @@ class Logger:
         try:
             config_yaml = open(config_log_path, 'r')
             log_config = yaml.load(config_yaml.read(), Loader=yaml.FullLoader)
+            logging.info("log_config " + str(log_config))
             logging.config.dictConfig(log_config)
         except Exception as exception:
             logging.basicConfig(level=def_log_level)

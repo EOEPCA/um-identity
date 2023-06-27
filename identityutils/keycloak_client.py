@@ -1,10 +1,13 @@
 import json
 import logging
+import os
 
 from keycloak import KeycloakOpenID, KeycloakOpenIDConnection, KeycloakAdmin, KeycloakUMA, ConnectionManager, \
     urls_patterns
 from keycloak.exceptions import raise_error_from_response, KeycloakGetError, KeycloakPostError, KeycloakPutError
+from logger import Logger
 
+Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
 logger = logging.getLogger("IDENTITY_UTILS")
 
 class KeycloakClient:
@@ -54,8 +57,8 @@ class KeycloakClient:
         client_id = self.resources_client.get('id')
         response = self.keycloak_admin.create_client_authz_resource(client_id=client_id, payload=resource,
                                                                     skip_exists=True)
-        logger.debug('Created resource:\n' + json.dumps(resource, indent=2))
-        logger.debug('Response: ' + str(response))
+        logger.info('Created resource:\n' + json.dumps(resource, indent=2))
+        logger.info('Response: ' + str(response))
         return response
 
     def update_resource(self, resource_id, resource):
@@ -75,21 +78,18 @@ class KeycloakClient:
         return self.keycloak_uma.resource_set_delete(resource_id)
 
     def __register_policy(self, policy, register_f):
-        client_id = self.resources_client.get('id')
-        logger.debug("Creating policy:\n" + json.dumps(policy, indent=2))
+        client_id = self.admin_client.get('id')
+        logger.info("Creating policy:\n" + json.dumps(policy, indent=2))
         response = register_f(client_id=client_id, payload=policy, skip_exists=True)
-        logger.debug("Response: " + str(response))
+        logger.info("Response: " + str(response))
 
     def __register_policy_send_post(self, policy_type, client_id, payload, skip_exists):
         params_path = {"realm-name": self.realm, "id": client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
-        data_raw = self.keycloak_uma_openid.connection.raw_post(url.format(**params_path), data=json.dumps(payload))
+        data_raw = self.keycloak_admin.connection.raw_post(url.format(**params_path), data=json.dumps(payload))
         return raise_error_from_response(
             data_raw, KeycloakPostError, expected_codes=[201], skip_exists=skip_exists
         )
-
-    def __register_aggregated_policy(self, client_id, payload, skip_exists):
-        self.__register_policy_send_post("aggregate", client_id, payload, skip_exists)
 
     def register_aggregated_policy(self, name, policies, strategy):
         # strategy: UNANIMOUS | AFFIRMATIVE | CONSENSUS
@@ -103,19 +103,13 @@ class KeycloakClient:
             "policies": policies,
             "description": ""
         }
-        self.__register_policy(policy, self.__register_aggregated_policy)
+        self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("aggregate", client_id, payload, skip_exists))
 
     def register_client_policy(self, policy):
         self.__register_policy(policy, self.keycloak_admin.create_client_authz_client_policy)
 
-    def __register_client_scope_policy(self, client_id, payload, skip_exists):
-        self.__register_policy_send_post("client-scope", client_id, payload, skip_exists)
-
     def register_client_scope_policy(self, policy):
-        self.__register_policy(policy, self.__register_client_scope_policy)
-
-    def __register_group_policy(self, client_id, payload, skip_exists):
-        self.__register_policy_send_post("group", client_id, payload, skip_exists)
+        self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("client-scope", client_id, payload, skip_exists))
 
     def register_group_policy(self, name, groups, groups_claim):
         # groups: [{"id": str, "path": str}]
@@ -128,10 +122,7 @@ class KeycloakClient:
             "groupsClaim": groups_claim,
             "description": ""
         }
-        self.__register_policy(policy, self.__register_group_policy)
-
-    def __register_regex_policy(self, client_id, payload, skip_exists):
-        self.__register_policy_send_post("regex", client_id, payload, skip_exists)
+        self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("group", client_id, payload, skip_exists))
 
     def register_regex_policy(self, name, regex, target_claim):
         policy = {
@@ -143,7 +134,7 @@ class KeycloakClient:
             "targetClaim": target_claim,
             "description": ""
         }
-        self.__register_policy(policy, self.__register_regex_policy)
+        self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("regex", client_id, payload, skip_exists))
 
     def register_role_policy(self, name, roles):
         if not isinstance(roles, list):
@@ -161,9 +152,6 @@ class KeycloakClient:
             ]
         }
         self.__register_policy(policy, self.keycloak_admin.create_client_authz_role_based_policy)
-
-    def __register_time_policy(self, client_id, payload, skip_exists):
-        self.__register_policy_send_post("time", client_id, payload, skip_exists)
 
     def register_time_policy(self, name, time):
         # time can be one of:
@@ -187,10 +175,7 @@ class KeycloakClient:
             "description": ""
         }
         policy.update(time)
-        self.__register_policy(policy, self.__register_time_policy)
-
-    def __register_user_policy(self, client_id, payload, skip_exists):
-        self.__register_policy_send_post("user", client_id, payload, skip_exists)
+        self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("time", client_id, payload, skip_exists))
 
     def register_user_policy(self, name, users):
         if not isinstance(users, list):
@@ -203,7 +188,7 @@ class KeycloakClient:
             "users": users,
             "description": ""
         }
-        self.__register_policy(policy, self.__register_user_policy)
+        self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("user", client_id, payload, skip_exists))
 
     def assign_resources_permissions(self, permissions):
         if not isinstance(permissions, list):
@@ -213,8 +198,8 @@ class KeycloakClient:
             response = self.keycloak_admin.create_client_authz_resource_based_permission(client_id=client_id,
                                                                                          payload=permission,
                                                                                          skip_exists=True)
-            logger.debug("Creating resource permission: " + json.dumps(permission, indent=2))
-            logger.debug("Response: " + str(response))
+            logger.info("Creating resource permission: " + json.dumps(permission, indent=2))
+            logger.info("Response: " + str(response))
 
     def create_user(self, username, password, realm_roles=None) -> str:
         if realm_roles is None:
@@ -224,8 +209,10 @@ class KeycloakClient:
             "realmRoles": realm_roles,
             "enabled": True
         }
+        for role in realm_roles:
+            self.create_realm_role(role)
         user_id = self.keycloak_admin.create_user(payload, exist_ok=True)
-        logger.debug('Created user: ' + str(user_id))
+        logger.info('Created user: ' + str(user_id))
         self.keycloak_admin.set_user_password(user_id, password, temporary=False)
         return user_id
 
@@ -368,10 +355,10 @@ class KeycloakClient:
         all_roles = self.keycloak_admin.get_realm_roles(brief_representation=False)
         realm_roles = list(filter(lambda role: role.get('name') in roles, all_roles))
         if not realm_roles:
-            logger.debug("Warning: roles " + str(roles) + " do not exist on realm " + self.realm)
+            logger.info("Warning: roles " + str(roles) + " do not exist on realm " + self.realm)
             return
-        logger.debug('Assigning roles to user ' + user_id + ':\n' + json.dumps(realm_roles, indent=2))
-        logger.debug('realm_roles ' + str(realm_roles))
+        logger.info('Assigning roles to user ' + user_id + ':\n' + json.dumps(realm_roles, indent=2))
+        logger.info('realm_roles ' + str(realm_roles))
         self.keycloak_admin.assign_realm_roles(user_id=user_id, roles=[realm_roles])
 
     def create_client_role(self, client_id: str, role: str) -> str:
@@ -384,11 +371,11 @@ class KeycloakClient:
     def register_client(self, options: dict):
         client_id = self.keycloak_admin.create_client(payload=options, skip_exists=True)
         client = self.keycloak_admin.get_client(client_id)
-        logger.debug('Created client:\n' + json.dumps(client, indent=2))
+        logger.info('Created client:\n' + json.dumps(client, indent=2))
         if options.get('serviceAccountsEnabled'):
             user = self.__get_service_account_user(client.get('id'))
             user_id = user.get('id')
-            logger.debug('Created service account user:\n' + json.dumps(user, indent=2))
+            logger.info('Created service account user:\n' + json.dumps(user, indent=2))
         return client
 
     def __register_resources_client(self, client_id: str):

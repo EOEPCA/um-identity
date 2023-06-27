@@ -1,8 +1,8 @@
 server.connection-timeout=5000
 spring.freemarker.cache=false
-server.port = 8080
+server.port = 7070
 keycloak.realm=master
-keycloak.auth-server-url=https://keycloak.develop.eoepca.org/auth
+keycloak.auth-server-url=http://keycloak:8080/auth
 keycloak.ssl-required=external
 keycloak.resource=resources-demo
 keycloak.public-client=false

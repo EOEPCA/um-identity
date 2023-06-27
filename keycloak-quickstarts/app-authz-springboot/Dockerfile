@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-alpine as builder
+FROM eclipse-temurin:8-jdk-alpine as builder
 
 WORKDIR /home/app
 
@@ -21,7 +21,7 @@ RUN chmod +x mvnw && \
 ################################
 ### stage 2 - package java  ###
 ################################
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:8-jre-alpine
 
 COPY --from=builder app.jar /home/app/app.jar
 
