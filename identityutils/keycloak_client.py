@@ -365,8 +365,8 @@ class KeycloakClient:
         logger.info('realm roles ' + json.dumps(realm_roles, indent=2))
         realm_roles = [
             {
-                "id": role.id,
-                "name": role.name
+                "id": role.get('id'),
+                "name": role.get('name'),
             } for role in realm_roles
         ]
         logger.info('Assigning roles to user ' + user_id + ':\n' + json.dumps(realm_roles, indent=2))
