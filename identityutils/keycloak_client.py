@@ -205,8 +205,8 @@ class KeycloakClient:
             realm_roles = []
         roles = []
         for role in realm_roles:
-            r = self.create_realm_role(role)
-            logger.info("Created realm role: " + str(r))
+            self.create_realm_role(role)
+            r = self.keycloak_admin.get_realm_role(role)
             roles.append(r)
         payload = {
             "username": username,
