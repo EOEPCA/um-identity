@@ -362,6 +362,7 @@ class KeycloakClient:
         realm_roles = list(filter(lambda role: role.get('name') in roles, all_roles))
         if not realm_roles:
             logger.warning("Realm roles " + str(roles) + " do no exist on realm " + self.realm)
+        logger.info('realm roles ' + json.dumps(realm_roles, indent=2))
         realm_roles = [
             {
                 "id": role.id,
