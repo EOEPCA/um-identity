@@ -3,7 +3,7 @@ import logging
 import os
 import re
 from configparser import ConfigParser
-from logger import Logger
+from .logger import Logger
 
 Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
 logger = logging.getLogger("IDENTITY_UTILS")

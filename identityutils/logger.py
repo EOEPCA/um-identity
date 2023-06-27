@@ -1,9 +1,7 @@
 import logging
 import logging.config
 import os
-
 import yaml
-
 
 class Logger:
     __instance__ = None
