@@ -203,15 +203,14 @@ class KeycloakClient:
     def create_user(self, username, password, realm_roles=None) -> str:
         if realm_roles is None:
             realm_roles = []
-        roles = []
+        if not isinstance(realm_roles, list):
+            realm_roles = [realm_roles]
         for role in realm_roles:
-            created_role = self.create_realm_role(role)
-            logger.info("Created realm role: " + str(created_role))
-            r = self.keycloak_admin.get_realm_role(role)
-            roles.append(r)
+            r = self.create_realm_role(role)
+            logger.info("Created realm role: " + str(r))
         payload = {
             "username": username,
-            "realmRoles": roles,
+            "realmRoles": realm_roles,
             "enabled": True
         }
         logger.info('Registering user: ' + json.dumps(payload, indent=2))
