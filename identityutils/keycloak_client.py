@@ -203,13 +203,16 @@ class KeycloakClient:
     def create_user(self, username, password, realm_roles=None) -> str:
         if realm_roles is None:
             realm_roles = []
+        roles = []
+        for role in realm_roles:
+            r = self.create_realm_role(role)
+            logger.info("Created realm role: " + str(r))
+            roles.append(r)
         payload = {
             "username": username,
-            "realmRoles": realm_roles,
+            "realmRoles": roles,
             "enabled": True
         }
-        for role in realm_roles:
-            self.create_realm_role(role)
         user_id = self.keycloak_admin.create_user(payload, exist_ok=True)
         logger.info('Created user: ' + str(user_id))
         self.keycloak_admin.set_user_password(user_id, password, temporary=False)
@@ -346,6 +349,7 @@ class KeycloakClient:
             "name": role,
             "clientRole": False
         }
+        logger.info("Creating realm role: " + json.dumps(payload, indent=2))
         return self.keycloak_admin.create_realm_role(payload=payload, skip_exists=True)
 
     def assign_realm_roles_to_user(self, user_id: str, roles: [str]):
