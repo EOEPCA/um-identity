@@ -205,12 +205,8 @@ class KeycloakClient:
             realm_roles = []
         if not isinstance(realm_roles, list):
             realm_roles = [realm_roles]
-        for role in realm_roles:
-            r = self.create_realm_role(role)
-            logger.info("Created realm role: " + str(r))
         payload = {
             "username": username,
-            "realmRoles": realm_roles,
             "enabled": True
         }
         logger.info('Registering user: ' + json.dumps(payload, indent=2))
@@ -218,6 +214,8 @@ class KeycloakClient:
         logger.info('Created user: ' + str(user_id))
         logger.info("Changing password for user: " + str(user_id))
         self.keycloak_admin.set_user_password(user_id, password, temporary=False)
+        if realm_roles:
+            self.assign_realm_roles_to_user(user_id, realm_roles)
         return user_id
 
     def get_user_token(self, username, password, openid):
@@ -357,13 +355,14 @@ class KeycloakClient:
     def assign_realm_roles_to_user(self, user_id: str, roles: [str]):
         if not isinstance(roles, list):
             roles = [roles]
+        for r in roles:
+            created_role = self.create_realm_role(r)
+            logger.info("Created realm role: " + str(created_role))
         all_roles = self.keycloak_admin.get_realm_roles(brief_representation=False)
         realm_roles = list(filter(lambda role: role.get('name') in roles, all_roles))
         if not realm_roles:
-            logger.info("Warning: roles " + str(roles) + " do not exist on realm " + self.realm)
-            return
+            logger.warning("Realm roles " + str(roles) + " do no exist on realm " + self.realm)
         logger.info('Assigning roles to user ' + user_id + ':\n' + json.dumps(realm_roles, indent=2))
-        logger.info('realm_roles ' + str(realm_roles))
         self.keycloak_admin.assign_realm_roles(user_id=user_id, roles=[realm_roles])
 
     def create_client_role(self, client_id: str, role: str) -> str:
