@@ -213,8 +213,10 @@ class KeycloakClient:
             "realmRoles": roles,
             "enabled": True
         }
+        logger.info('Registering user: ' + json.dumps(payload, indent=2))
         user_id = self.keycloak_admin.create_user(payload, exist_ok=True)
         logger.info('Created user: ' + str(user_id))
+        logger.info("Changing password for user: " + str(user_id))
         self.keycloak_admin.set_user_password(user_id, password, temporary=False)
         return user_id
 
