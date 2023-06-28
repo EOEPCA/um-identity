@@ -7,7 +7,8 @@ services:
             - eoepca_network
         environment:
             - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
-    #        restart: on-failure
+            - KEYCLOAK_RESOURCE_SERVER_ENDPOINT=http://localhost:7070
+        restart: on-failure
 #    identity-manager:
 #        image: identity-manager
 #        container_name: identity-manager
@@ -28,7 +29,7 @@ services:
             - KEYCLOAK_ADMIN_USERNAME=admin
             - KEYCLOAK_ADMIN_PASSWORD=admin
             - KEYCLOAK_REALM=dummy-service
-            - KEYCLOAK_RESOURCE_SERVER_ENDPOINT=https://dummy-service.develop.eoepca.org
+            - KEYCLOAK_RESOURCE_SERVER_ENDPOINT=http://keycloak-springboot-demo:7070
             - SWAGGER_URL=/swagger-ui
             - SWAGGER_API_URL=/swagger-ui-api
             - SWAGGER_APP_NAME=Identity API
@@ -97,7 +98,7 @@ services:
 #            - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
 #            - OAUTH2_PROXY_COOKIE_SECURE=true
 #            - OAUTH2_PROXY_COOKIE_SECRET=JxJZrvNo4z1VJIiDMDGJe3q4TjmpVxMNHziW97J9UAo=
-#            - OAUTH2_PROXY_UPSTREAMS=https://dummy-service.develop.eoepca.org
+#            - OAUTH2_PROXY_UPSTREAMS=http://localhost:7070
 #            - OAUTH2_PROXY_COOKIE_DOMAINS=localhost:80 # Required so cookie can be read on all subdomains.
 #            - OAUTH2_PROXY_WHITELIST_DOMAINS=localhost:80 # Required to allow redirection back to original requested target.
 #            - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
@@ -137,14 +138,14 @@ services:
 #            - "80:80"
 #            - "443:443"
 #        restart: on-failure
-#    demo:
-#        image: keycloak-springboot-demo
-#        container_name: keycloak-springboot-demo
-#        networks:
-#            - eoepca_network
-#        ports:
-#            - "7070:7070"
-#        #restart: on-failure
+    demo:
+        image: keycloak-springboot-demo
+        container_name: keycloak-springboot-demo
+        networks:
+            - eoepca_network
+        ports:
+            - "7070:7070"
+        #restart: on-failure
 networks:
     eoepca_network:
         driver: bridge

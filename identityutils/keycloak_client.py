@@ -76,6 +76,16 @@ class KeycloakClient:
     def delete_resource(self, resource_id):
         return self.keycloak_uma.resource_set_delete(resource_id)
 
+    def delete_policies(self, policies):
+        if not isinstance(policies, list):
+            policies = [policies]
+        client_id = self.resources_client.get('id')
+        policy = list(filter(lambda p: p.get('name') in policies, self.keycloak_admin.get_client_authz_policies(client_id)))
+        if not policy:
+            logger.info("Policies not found: " + str(policies))
+        for pol in policy:
+            self.keycloak_admin.delete_client_authz_policy(client_id=client_id, policy_id=pol)
+
     def __register_policy(self, policy, register_f):
         client_id = self.resources_client.get('id')
         logger.info("Creating policy:\n" + json.dumps(policy, indent=2))
@@ -397,7 +407,7 @@ class KeycloakClient:
             'directAccessGrantsEnabled': True,
             'authorizationServicesEnabled': True,
             'authorizationSettings': {
-                'allowRemoteResourceManagement': True,
+                'allowRemoteResourceManagement': False, # True
                 'policyEnforcementMode': 'ENFORCING'
             },
             "bearerOnly": False,
