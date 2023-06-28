@@ -46,9 +46,14 @@ class KeycloakClient:
     def set_realm(self, realm):
         if realm != 'master':
             self.keycloak_admin.create_realm(payload={"realm": self.realm, "enabled": True}, skip_exists=True)
-            self.keycloak_admin.realm_name = self.realm
+        self.keycloak_admin.realm_name = self.realm
+
+    def import_realm(self, realm: dict) -> dict:
+        return self.keycloak_admin.import_realm(realm)
 
     def register_resources(self, resources):
+        if not isinstance(resources, list):
+            resources = [resources]
         for resource in resources:
             self.register_resource(resource)
 
@@ -79,12 +84,16 @@ class KeycloakClient:
     def delete_policies(self, policies):
         if not isinstance(policies, list):
             policies = [policies]
+            logger.info("Deleting policies: " + str(policies))
         client_id = self.resources_client.get('id')
-        policy = list(filter(lambda p: p.get('name') in policies, self.keycloak_admin.get_client_authz_policies(client_id)))
-        if not policy:
+        delete_policies = list(filter(lambda p: p.get('name') in policies, self.keycloak_admin.get_client_authz_policies(client_id)))
+        logger.info("Policies to delete: " + str(delete_policies))
+        if not delete_policies:
             logger.info("Policies not found: " + str(policies))
-        for pol in policy:
-            self.keycloak_admin.delete_client_authz_policy(client_id=client_id, policy_id=pol)
+            return
+        for d in delete_policies:
+            deleted = self.keycloak_admin.delete_client_authz_policy(client_id=client_id, policy_id=d.get('id'))
+            logger.info("Policy delete: " + str(deleted))
 
     def __register_policy(self, policy, register_f):
         client_id = self.resources_client.get('id')
