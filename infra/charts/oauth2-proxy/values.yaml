@@ -360,8 +360,8 @@ config:
     client_secret = "secret"
     redirect_url = "https://identity-proxy.local.eoepca.org/oauth2/callback"
     # in this case oauth2-proxy is going to visit
-    # https://identity-keycloak.local.eoepca.org/realms/dummy-service/.well-known/openid-configuration for configuration
-    oidc_issuer_url = "https://identity-keycloak.local.eoepca.org/realms/dummy-service"
+    # https://identity-keycloak.local.eoepca.org/realms/demo/.well-known/openid-configuration for configuration
+    oidc_issuer_url = "https://identity-keycloak.local.eoepca.org/realms/demo"
     provider = "oidc"
     provider_display_name = "Keycloak"
     skip_provider_button = true

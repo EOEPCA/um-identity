@@ -92,8 +92,7 @@ class KeycloakClient:
             logger.info("Policies not found: " + str(policies))
             return
         for d in delete_policies:
-            deleted = self.keycloak_admin.delete_client_authz_policy(client_id=client_id, policy_id=d.get('id'))
-            logger.info("Policy delete: " + str(deleted))
+            self.keycloak_admin.delete_client_authz_policy(client_id=client_id, policy_id=d.get('id'))
 
     def __register_policy(self, policy, register_f):
         client_id = self.resources_client.get('id')
@@ -165,7 +164,7 @@ class KeycloakClient:
             "roles": [
                 {
                     "id": role,
-                    "required": True
+                    "required": False
                 } for role in roles
             ]
         }
