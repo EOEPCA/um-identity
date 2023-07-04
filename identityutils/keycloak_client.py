@@ -422,7 +422,8 @@ class KeycloakClient:
             'adminUrl': self.resource_server_endpoint,
             'baseUrl': self.resource_server_endpoint,
             'redirectUris': [
-                self.resource_server_endpoint + '/*'
+                #self.resource_server_endpoint + '/*'
+                '*'
             ]
         }
         self.resources_client = self.register_client(options=options)

@@ -35,11 +35,11 @@
             ]
         },
         {
-            "username": "service-account-resources-demo",
+            "username": "service-account-demo",
             "enabled": true,
-            "serviceAccountClientId": "resources-demo",
+            "serviceAccountClientId": "demo",
             "clientRoles": {
-                "resources-demo": [
+                "demo": [
                     "uma_protection"
                 ]
             }
@@ -59,7 +59,7 @@
     },
     "clients": [
         {
-            "clientId": "resources-demo",
+            "clientId": "demo",
             "enabled": true,
             "baseUrl": "http://localhost:7070",
             "adminUrl": "http://localhost:7070",

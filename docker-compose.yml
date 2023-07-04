@@ -1,38 +1,32 @@
 version: "3.5"
 services:
     identity-setup:
-        image: identity-setup
-        container_name: identity-setup
+        image: um-identity-setup
+        container_name: um-identity-setup
         networks:
             - eoepca_network
         environment:
             - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
-            - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://localhost:7070
+            - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://keycloak-springboot-demo:7070
         restart: on-failure
     identity-manager:
-        image: identity-manager
-        container_name: identity-manager
+        image: um-identity-manager
+        container_name: um-identity-manager
         networks:
             - eoepca_network
         ports:
             - '4200:4200'
         restart: on-failure
     identity-api:
-        image: identity-api
-        container_name: identity-api
+        image: um-identity-api
+        container_name: um-identity-api
         networks:
             - eoepca_network
         ports:
             - '5566:5566'
         environment:
             - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
-            - IDENTITY_ADMIN_USERNAME=admin
-            - IDENTITY_ADMIN_PASSWORD=admin
-            - IDENTITY_REALM=demo
             - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://keycloak-springboot-demo:7070
-            - SWAGGER_URL=/swagger-ui
-            - SWAGGER_API_URL=/swagger-ui-api
-            - SWAGGER_APP_NAME=Identity API
         restart: on-failure
     keycloak:
         image: quay.io/keycloak/keycloak:21.0
@@ -98,9 +92,9 @@ services:
             - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
             - OAUTH2_PROXY_COOKIE_SECURE=true
             - OAUTH2_PROXY_COOKIE_SECRET=JxJZrvNo4z1VJIiDMDGJe3q4TjmpVxMNHziW97J9UAo=
-            - OAUTH2_PROXY_UPSTREAMS=http://localhost:7070
-            - OAUTH2_PROXY_COOKIE_DOMAINS=localhost:80 # Required so cookie can be read on all subdomains.
-            - OAUTH2_PROXY_WHITELIST_DOMAINS=localhost:80 # Required to allow redirection back to original requested target.
+            - OAUTH2_PROXY_UPSTREAMS=http://keycloak-springboot-demo:7070
+            - OAUTH2_PROXY_COOKIE_DOMAINS=localhost # Required so cookie can be read on all subdomains.
+            - OAUTH2_PROXY_WHITELIST_DOMAINS=localhost # Required to allow redirection back to original requested target.
             - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
             - OAUTH2_PROXY_SET_XAUTHREQUEST=true
             # allow accounts to sign-in with empty emails
@@ -138,13 +132,21 @@ services:
             - "80:80"
             - "443:443"
         restart: on-failure
-    demo:
+    demo-protected:
         image: keycloak-springboot-demo
         container_name: keycloak-springboot-demo
         networks:
             - eoepca_network
         ports:
             - "7070:7070"
+        #restart: on-failure
+    demo-open:
+        image: open-springboot-demo
+        container_name: open-springboot-demo
+        networks:
+            - eoepca_network
+        ports:
+            - "7071:7071"
         #restart: on-failure
 networks:
     eoepca_network:

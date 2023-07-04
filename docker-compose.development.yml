@@ -2,7 +2,7 @@ version: "3.5"
 services:
     identity-manager:
         build: https://github.com/EOEPCA/um-identity-manager#develop
-        container_name: identity-manager
+        container_name: um-identity-manager
         networks:
             - eoepca_network
         ports:
@@ -12,7 +12,7 @@ services:
             - /app/node_modules
     identity-api:
         build: https://github.com/EOEPCA/um-identity-api#develop
-        container_name: identity-api
+        container_name: um-identity-api
         networks:
             - eoepca_network
         ports:
