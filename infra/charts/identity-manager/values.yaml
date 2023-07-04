@@ -89,14 +89,14 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
-    - host: identity-manager.local.eoepca.org
+    - host: identity.manager.local.eoepca.org
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: identity-manager-tls-certificate
       hosts:
-        - identity-manager.local.eoepca.org
+        - identity.manager.local.eoepca.org
 # ---------------------------------------
 # Variable group used in ingress template
 # ---------------------------------------

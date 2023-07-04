@@ -264,14 +264,14 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
-    - host: identity-oauth2-proxy.local.eoepca.org
+    - host: identity.proxy.local.eoepca.org
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: oauth2-proxy-tls-certificate
+    - secretName: identity-proxy-tls-certificate
       hosts:
-        - identity-oauth2-proxy.local.eoepca.org
+        - identity.proxy.local.eoepca.org
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -358,10 +358,10 @@ config:
     # keycloak provider
     client_id = "oauth2-proxy"
     client_secret = "secret"
-    redirect_url = "https://identity-proxy.local.eoepca.org/oauth2/callback"
+    redirect_url = "https://identity.proxy.local.eoepca.org/oauth2/callback"
     # in this case oauth2-proxy is going to visit
-    # https://identity-keycloak.local.eoepca.org/realms/demo/.well-known/openid-configuration for configuration
-    oidc_issuer_url = "https://identity-keycloak.local.eoepca.org/realms/demo"
+    # https://identity.keycloak.local.eoepca.org/realms/demo/.well-known/openid-configuration for configuration
+    oidc_issuer_url = "https://identity.keycloak.local.eoepca.org/realms/demo"
     provider = "oidc"
     provider_display_name = "Keycloak"
     skip_provider_button = true

@@ -60,7 +60,7 @@ deployment:
     - name: "KC_DB"
       value: "postgres"
     - name: "KC_DB_URL_HOST"
-      value: "postgres"
+      value: "identity-postgres"
     - name: "KC_DB_PASSWORD"
       value: "123456"
     - name: "KC_DB_USERNAME"
@@ -118,14 +118,14 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
-    - host: identity-keycloak.local.eoepca.org
+    - host: identity.keycloak.local.eoepca.org
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: keycloak-tls-certificate
+    - secretName: identity-keycloak-tls-certificate
       hosts:
-        - identity-keycloak.local.eoepca.org
+        - identity.keycloak.local.eoepca.org
 # ---------------------------------------
 # Variable group used in ingress template
 # ---------------------------------------
