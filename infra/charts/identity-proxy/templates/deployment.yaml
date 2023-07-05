@@ -145,7 +145,7 @@ spec:
                 {{- if .Values.sessionStorage.redis.existingSecret }}
                 name: {{ .Values.sessionStorage.redis.existingSecret }}
                 {{- else if .Values.sessionStorage.redis.password }}
-                name: {{ template "oauth2-proxy.fullname" . }}-redis-access
+                name: {{ template "oauth2-proxy.name" . }}-redis-access
                 {{- else }}
                 name: {{ include "oauth2-proxy.redis.fullname" . }}
                 {{- end }}
@@ -173,7 +173,7 @@ spec:
                 {{- if or .Values.sessionStorage.redis.sentinel.existingSecret .Values.sessionStorage.redis.existingSecret }}
                 name: {{ .Values.sessionStorage.redis.sentinel.existingSecret | default .Values.sessionStorage.redis.existingSecret }}
                 {{- else }}
-                name: {{ template "oauth2-proxy.fullname" . }}-redis-access
+                name: {{ template "oauth2-proxy.name" . }}-redis-access
                 {{- end }}
                 key: {{ .Values.sessionStorage.redis.sentinel.passwordKey }}
           {{- end }}
@@ -245,7 +245,7 @@ spec:
           {{- end }}
           {{- if .Values.htpasswdFile.enabled }}
             - mountPath: /etc/oauth2_proxy/htpasswd
-              name: {{ template "oauth2-proxy.fullname" . }}-htpasswd-file
+              name: {{ template "oauth2-proxy.name" . }}-htpasswd-file
               readOnly: true
           {{- end }}
           {{- if ne (len .Values.extraVolumeMounts) 0 }}
@@ -268,9 +268,9 @@ spec:
       {{- end }}
       {{- end }}
       {{- if .Values.htpasswdFile.enabled }}
-        - name: {{ template "oauth2-proxy.fullname" . }}-htpasswd-file
+        - name: {{ template "oauth2-proxy.name" . }}-htpasswd-file
           secret:
-            secretName: {{ if .Values.htpasswdFile.existingSecret }}{{ .Values.htpasswdFile.existingSecret }}{{ else }} {{ template "oauth2-proxy.fullname" . }}-htpasswd-file {{ end }}
+            secretName: {{ if .Values.htpasswdFile.existingSecret }}{{ .Values.htpasswdFile.existingSecret }}{{ else }} {{ template "oauth2-proxy.name" . }}-htpasswd-file {{ end }}
       {{- end }}
       {{- if and (.Values.authenticatedEmailsFile.enabled) (eq .Values.authenticatedEmailsFile.persistence "secret") }}
         - name: configaccesslist
@@ -285,19 +285,19 @@ spec:
             {{- if .Values.authenticatedEmailsFile.emailUserListTemplate }}
             secretName: {{ .Values.authenticatedEmailsFile.emailUserListTemplate }}
             {{- else }}
-            secretName: {{ template "oauth2-proxy.fullname" . }}-accesslist
+            secretName: {{ template "oauth2-proxy.name" . }}-accesslist
             {{- end }}
       {{- end }}
       {{- if or .Values.config.existingConfig .Values.config.configFile }}
         - configMap:
             defaultMode: 420
-            name: {{ if .Values.config.existingConfig }}{{ .Values.config.existingConfig }}{{ else }}{{ template "oauth2-proxy.fullname" . }}{{ end }}
+            name: {{ if .Values.config.existingConfig }}{{ .Values.config.existingConfig }}{{ else }}{{ template "oauth2-proxy.name" . }}{{ end }}
           name: configmain
       {{- end }}
       {{- if .Values.alphaConfig.enabled }}
         - configMap:
             defaultMode: 420
-            name: {{ if .Values.alphaConfig.existingConfig }}{{ .Values.alphaConfig.existingConfig }}{{ else }}{{ template "oauth2-proxy.fullname" . }}-alpha{{ end }}
+            name: {{ if .Values.alphaConfig.existingConfig }}{{ .Values.alphaConfig.existingConfig }}{{ else }}{{ template "oauth2-proxy.name" . }}-alpha{{ end }}
           name: configalpha
       {{- end }}
       {{- if ne (len .Values.extraVolumes) 0 }}
@@ -308,7 +308,7 @@ spec:
             {{- if .Values.authenticatedEmailsFile.emailUserListTemplate }}
             name: {{ .Values.authenticatedEmailsFile.emailUserListTemplate }}
             {{- else }}
-            name: {{ template "oauth2-proxy.fullname" . }}-accesslist
+            name: {{ template "oauth2-proxy.name" . }}-accesslist
             {{- end }}
             items:
               - key: {{ default "restricted_user_access" .Values.authenticatedEmailsFile.restrictedUserAccessKey }}

@@ -10,7 +10,7 @@ metadata:
   labels:
     app: {{ include "oauth2-proxy.name" . }}
 {{- include "oauth2-proxy.labels" . | indent 4 }}
-  name: {{ template "oauth2-proxy.fullname" . }}
+  name: {{ template "oauth2-proxy.name" . }}
   namespace: {{ template "oauth2-proxy.namespace" $ }}
 data:
   oauth2_proxy.cfg: {{ tpl .Values.config.configFile $ | quote }}

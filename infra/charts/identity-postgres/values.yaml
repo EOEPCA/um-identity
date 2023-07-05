@@ -2,6 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# ---------------------------------------
+# Global variables
+# ---------------------------------------
+nameOverride: ""
+namespaceOverride: ""
+fullnameOverride: ""
+restartPolicy: Always
+
 # ---------------------------------------------
 # Variable used in configMaps template
 # ---------------------------------------------

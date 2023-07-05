@@ -55,7 +55,7 @@ Create the name of the service account to use
 */}}
 {{- define "keycloak.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "keycloak.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "keycloak.name" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -64,7 +64,7 @@ Create the name of the service account to use
 {{/*
 Allow the release namespace to be overridden for multi-namespace deployments in combined charts
 */}}
-{{- define "oauth2-proxy.namespace" -}}
+{{- define "keycloak.namespace" -}}
   {{- if .Values.namespaceOverride -}}
     {{- .Values.namespaceOverride -}}
   {{- else -}}

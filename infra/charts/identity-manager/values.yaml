@@ -6,6 +6,7 @@
 # Global variables
 # ---------------------------------------
 nameOverride: ""
+namespaceOverride: ""
 fullnameOverride: ""
 restartPolicy: Always
 
