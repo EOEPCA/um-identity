@@ -3,26 +3,26 @@ identity-api:
     deployment:
         image:
             repository: ghcr.io/eoepca/um-identity-api
-            pullPolicy: IfNotPresent
+            pullPolicy: Always
 identity-manager:
     enabled: true
     deployment:
         image:
             repository: ghcr.io/eoepca/um-identity-manager
-            pullPolicy: IfNotPresent
-keycloak:
+            pullPolicy: Always
+identity-keycloak:
     enabled: true
     deployment:
         image:
             repository: quay.io/keycloak/keycloak
             pullPolicy: IfNotPresent
-oauth2-proxy:
+identity-proxy:
     enabled: true
     deployment:
         image:
             repository: quay.io/oauth2-proxy/oauth2-proxy
             pullPolicy: IfNotPresent
-postgres:
+identity-postgres:
     enabled: true
     deployment:
         image:

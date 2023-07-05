@@ -67,7 +67,7 @@ spec:
       volumes:
         - name: {{ .Values.deployment.volumeMountName }}
           persistentVolumeClaim:
-            claimName: {{ include "postgres.name" . }}-volume-claim
+            claimName: {{ .Values.volumeClaim.name }}
       {{- with .Values.deployment.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -130,11 +130,11 @@ The component documentation can be found at https://eoepca.github.io/um-identity
 Add `127.0.0.1 keycloak` to hosts file to be able to run locally.
 
 - **Helm charts:**  
-`Identity-manager` - https://identity-manager.local.eoepca.org  
-`Identity-api` - https://identity-api.local.eoepca.org  
-`Keycloak` - https://identity-keycloak.local.eoepca.org  
-`OAuth2 Proxy` - https://identity-proxy.local.eoepca.org  
-`Demo app` - https://identity-demo.local.eoepca.org  
+`Identity-manager` - https://identity.manager.local.eoepca.org  
+`Identity-api` - https://identity.api.local.eoepca.org  
+`Keycloak` - https://identity.keycloak.local.eoepca.org  
+`OAuth2 Proxy` - https://identity.proxy.local.eoepca.org  
+`Demo app` - https://identity.demo.local.eoepca.org  
 
 ## Roadmap
 
