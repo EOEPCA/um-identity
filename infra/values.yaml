@@ -28,3 +28,9 @@ identity-postgres:
         image:
             repository: postgres
             pullPolicy: IfNotPresent
+identity-nginx:
+    enabled: true
+    deployment:
+        image:
+            repository: nginxinc/nginx-unprivileged:alpine
+            pullPolicy: IfNotPresent

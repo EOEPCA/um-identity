@@ -129,8 +129,7 @@ services:
             #- ./nginx/letsencrypt:/etc/nginx/cert
             - ./nginx/www:/data/www
         ports:
-            - "80:80"
-            - "443:443"
+            - "8080:8080"
         restart: on-failure
     demo-protected:
         image: keycloak-springboot-demo

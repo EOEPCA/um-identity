@@ -76,6 +76,21 @@ services:
             - OAUTH2_PROXY_PROVIDER=oidc
             - OAUTH2_PROXY_PROVIDER_DISPLAY_NAME=Keycloak
             - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON=true
+    nginx:
+        image: nginx:1.25.1-alpine
+        container_name: nginx
+        networks:
+            - eoepca_network
+        depends_on:
+            - oauth2-proxy
+            - keycloak
+        volumes:
+            - ./nginx/default.conf:/etc/nginx/templates/default.conf.template
+            #- ./nginx/letsencrypt:/etc/nginx/cert
+        ports:
+            - "8080:8080"
+            - "443:443"
+        restart: on-failure
 networks:
     eoepca_network:
         driver: bridge
