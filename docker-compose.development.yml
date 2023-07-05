@@ -2,7 +2,7 @@ version: "3.5"
 services:
     identity-manager:
         build: https://github.com/EOEPCA/um-identity-manager#develop
-        container_name: identity-manager
+        container_name: um-identity-manager
         networks:
             - eoepca_network
         ports:
@@ -12,7 +12,7 @@ services:
             - /app/node_modules
     identity-api:
         build: https://github.com/EOEPCA/um-identity-api#develop
-        container_name: identity-api
+        container_name: um-identity-api
         networks:
             - eoepca_network
         ports:
@@ -30,7 +30,7 @@ services:
             - KEYCLOAK_LOGLEVEL=DEBUG
             - WILDFLY_LOGLEVEL=DEBUG
             - KEYCLOAK_ADMIN=admin
-            - KEYCLOAK_ADMIN_PASSWORD=admin_Abcd1234#
+            - KEYCLOAK_ADMIN_PASSWORD=admin
             - KC_PROXY=edge
             - KC_HOSTNAME_STRICT=false
             - KC_DB=postgres
@@ -79,10 +79,11 @@ services:
             - OAUTH2_PROXY_CLIENT_SECRET=secret
             - OAUTH2_PROXY_REDIRECT_URL=https://identity-proxy.local.eoepca.org/oauth2/callback
             # in this case oauth2-proxy is going to visit
-            # https://identity-keycloak.local.eoepca.org/realms/dummy-service/.well-known/openid-configuration for configuration
-            - OAUTH2_PROXY_OIDC_ISSUER_URL=https://identity-keycloak.local.eoepca.org/realms/dummy-service
+            # https://identity.keycloak.local.eoepca.org/realms/demo/.well-known/openid-configuration for configuration
+            - OAUTH2_PROXY_OIDC_ISSUER_URL=https://identity.keycloak.local.eoepca.org/realms/demo
             - OAUTH2_PROXY_PROVIDER=oidc
             - OAUTH2_PROXY_PROVIDER_DISPLAY_NAME=Keycloak
+            - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON=true
 networks:
     eoepca_network:
         driver: bridge

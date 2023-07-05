@@ -21,7 +21,7 @@ class PEPProtectedAction(unittest.TestCase):
             "scope": "openid user_name eoepca is_operator",
             "grant_type": "password",
             "username": "admin",
-            "password": "admin_Abcd1234#",
+            "password": "admin",
             "client_id": cls.g_config["client_id"],
             "client_secret": cls.g_config["client_secret"]
         }

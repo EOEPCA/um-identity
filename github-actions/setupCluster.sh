@@ -2,7 +2,7 @@
 
 ### CONFIGURATION VARIABLES
 #GLUU_SECRET_ADAPTER="kubernetes"
-#ADMIN_PW="admin_Abcd1234#"
+#ADMIN_PW="admin"
 #EMAIL="support@gluu.org"
 DOMAIN="test.eoepca.org"
 ##ORG_NAME="Deimos"

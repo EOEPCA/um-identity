@@ -5,12 +5,12 @@ dependencies:
     - name: identity-manager
       condition: identity-manager.enabled
       version: 1.0.0
-    - name: keycloak
-      condition: keycloak.enabled
+    - name: identity-keycloak
+      condition: identity-keycloak.enabled
       version: 1.0.0
-    - name: oauth2-proxy
-      condition: oauth2-proxy.enabled
+    - name: identity-proxy
+      condition: identity-proxy.enabled
       version: 1.0.0
-    - name: postgres
-      condition: postgres.enabled
+    - name: identity-postgres
+      condition: identity-postgres.enabled
       version: 1.0.0

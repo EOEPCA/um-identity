@@ -10,19 +10,19 @@ identity-manager:
         image:
             repository: ghcr.io/eoepca/um-identity-manager
             pullPolicy: Always
-keycloak:
+identity-keycloak:
     enabled: true
     deployment:
         image:
             repository: quay.io/keycloak/keycloak
             pullPolicy: IfNotPresent
-oauth2-proxy:
+identity-proxy:
     enabled: true
     deployment:
         image:
             repository: quay.io/oauth2-proxy/oauth2-proxy
             pullPolicy: IfNotPresent
-postgres:
+identity-postgres:
     enabled: true
     deployment:
         image:

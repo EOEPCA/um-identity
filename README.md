@@ -71,6 +71,9 @@ Includes five main components:
 Using Docker compose:
 
 ```shell
+cd keycloak-quickstarts
+docker build . -t keycloak-springboot-demo
+cd ..
 docker-compose up -d
 ```
 
@@ -119,16 +122,19 @@ The component documentation can be found at https://eoepca.github.io/um-identity
 
 - **Docker-compose:**  
 `Identity-manager` - http://localhost:4200   
-`Identity-api` - http://localhost:8081  
+`Identity-api` - http://localhost:5566  
 `Keycloak` - http://localhost:8080  
 `OAuth2 Proxy` - http://localhost:4180  
+`Demo app` - http://localhost:7070  
 
+Add `127.0.0.1 keycloak` to hosts file to be able to run locally.
 
 - **Helm charts:**  
-`Identity-manager` - https://identity-manager.local.eoepca.org  
-`Identity-api` - https://identity-api.local.eoepca.org  
-`Keycloak` - https://identity-keycloak.local.eoepca.org  
-`OAuth2 Proxy` - https://identity-proxy.local.eoepca.org  
+`Identity-manager` - https://identity.manager.local.eoepca.org  
+`Identity-api` - https://identity.api.local.eoepca.org  
+`Keycloak` - https://identity.keycloak.local.eoepca.org  
+`OAuth2 Proxy` - https://identity.proxy.local.eoepca.org  
+`Demo app` - https://identity.demo.local.eoepca.org  
 
 ## Roadmap
 

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-
 import logging
-
 from elasticsearch import Elasticsearch
+from .logger import Logger
 
+Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
 logger = logging.getLogger("IDENTITY_UTILS")
-
 
 class ElasticSearch:
 

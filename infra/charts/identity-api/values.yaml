@@ -38,7 +38,7 @@ deployment:
     runAsNonRoot: true
   image:
     repository: ghcr.io/eoepca/um-identity-api
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
 
   # Define which port will be used in the containers
   containerPort: 8080
@@ -89,14 +89,14 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
-    - host: identity-api.local.eoepca.org
+    - host: identity.api.local.eoepca.org
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: identity-api-tls-certificate
       hosts:
-        - identity-api.local.eoepca.org
+        - identity.api.local.eoepca.org
 # ---------------------------------------
 # Variable group used in ingress template
 # ---------------------------------------

@@ -3,7 +3,9 @@ import logging
 import os
 import re
 from configparser import ConfigParser
+from .logger import Logger
 
+Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
 logger = logging.getLogger("IDENTITY_UTILS")
 config = ConfigParser()
 
@@ -15,7 +17,7 @@ def load_configuration(path: os.PathLike | str) -> ConfigParser:
     conf = __load_configuration_file(path)
     # load environment variables related to Keycloak config
     for c in conf['Keycloak'].keys():
-        v = os.environ.get('KEYCLOAK_' + c.upper().replace("-", "_"))
+        v = os.environ.get('IDENTITY_' + c.upper().replace("-", "_"))
         if v:
             v = v.replace('"', '')
             config['Keycloak'][c] = v
