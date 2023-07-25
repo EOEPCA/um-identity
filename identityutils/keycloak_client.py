@@ -113,6 +113,14 @@ class KeycloakClient:
 
     def register_aggregated_policy(self, name, policies, strategy):
         # strategy: UNANIMOUS | AFFIRMATIVE | CONSENSUS
+        """
+        Body example:
+        {
+            "name": "aggregate policy 1",
+            "strategy": "UNANIMOUS",
+            "policies": ["My Policy 1"]
+        }
+        """
         if not isinstance(policies, list):
             policies = [policies]
         policy = {
@@ -126,6 +134,16 @@ class KeycloakClient:
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("aggregate", client_id, payload, skip_exists))
 
     def register_client_policy(self, policy):
+        """
+        Body example: 
+        {
+            "type": "client",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "name": "My Policy 2",
+            "clients": ["95c52e1b-1c59-4ce2-a0cc-f6eb239db766"]
+        }
+"""
         client_id = self.resources_client.get('id')
         try:
             return self.keycloak_admin.create_client_authz_client_policy(policy, client_id)
@@ -136,6 +154,16 @@ class KeycloakClient:
                 return KeycloakPostError
 
     def register_client_scope_policy(self, policy):
+        """
+        Body example: 
+        {
+            "type": "client-scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "name": "My Policy 3",
+            "owner": "95c52e1b-1c59-4ce2-a0cc-f6eb239db766"
+        }
+"""
         policy_type = "client-scope"
         client_id = self.resources_client.get('id')
         params_path = {"realm-name": self.realm, "id": client_id}
@@ -146,6 +174,14 @@ class KeycloakClient:
         )
 
     def register_group_policy(self, name, groups, groups_claim):
+        """
+        Body example:
+        {
+            "name": "group policy 1",
+            "groups":  [{"id": "str", "path": "str"}],
+            "groups_claim": "group claim 1"
+        }
+        """
         # groups: [{"id": str, "path": str}]
         policy = {
             "type": "group",
@@ -159,6 +195,14 @@ class KeycloakClient:
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("group", client_id, payload, skip_exists))
 
     def register_regex_policy(self, name, regex, target_claim):
+        """
+        Body example:
+        {
+            "name": "regex policy 1",
+            "regex": "123",
+            "target_claim": "My target 1"
+        }
+        """
         policy = {
             "type": "regex",
             "logic": "POSITIVE",
@@ -171,6 +215,13 @@ class KeycloakClient:
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("regex", client_id, payload, skip_exists))
 
     def register_role_policy(self, name, roles):
+        """
+        Body example: 
+        {
+            "name": "role policy 1",
+            "roles": ["role1"]
+        }
+        """
         if not isinstance(roles, list):
             roles = [roles]
         policy = {
@@ -188,6 +239,13 @@ class KeycloakClient:
         return self.__register_policy(policy, self.keycloak_admin.create_client_authz_role_based_policy)
 
     def register_time_policy(self, name, time):
+        """
+        Body example:
+        {
+            "name": "time policy 4",
+            "year": "2021"
+        }
+        """
         # time can be one of:
         # "notAfter":"1970-01-01 00:00:00"
         # "notBefore":"1970-01-01 00:00:00"
@@ -212,6 +270,13 @@ class KeycloakClient:
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("time", client_id, payload, skip_exists))
 
     def register_user_policy(self, name, users):
+        """
+        Body example:
+        {
+            "name": "user policy 1",
+            "users": "ea3f5d70-a077-477c-a6c5-6cd9f50de908"
+        }
+        """
         if not isinstance(users, list):
             users = [users]
         policy = {
@@ -475,6 +540,17 @@ class KeycloakClient:
         return self.keycloak_admin.get_client_authz_policies(client_id)
     
     def update_policy(self, policy_id, payload):
+        """
+        Body fields common to all types of policies:
+        {
+            "decisionStrategy": "UNANIMOUS",,
+            "logic": "POSITIVE",
+            "name": "My Policy 5",
+            "type": "client",
+        }
+
+        See create policies methods to see what additional fields are needed for each type.
+        """
         client_id = self.resources_client.get('id')
         params_path = {"realm-name": self.realm, "id": client_id}
         policy_type = payload["type"]
@@ -509,12 +585,45 @@ class KeycloakClient:
     #    return self.keycloak_admin.create_client_authz_scope_based_permission(client_id, payload, skip_exists=True)
     
     def create_client_authz_resource_based_permission(self, client_id, payload):
+        """
+        Body example:
+        {
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "name": "Permission-Name 2",
+            "resources": [
+                "4e80aad5-8065-480d-a42c-fada32a493fc"
+            ],
+            "policies": [
+                "3e9d7416-b91f-4b9b-b508-9335ab1ef9e8"
+            ]
+        }
+        """
         return self.keycloak_admin.create_client_authz_resource_based_permission(client_id, payload, skip_exists=True)
 
     def update_client_management_permissions(self, client_id, payload):
+        """
+        Body example:
+        {
+            "enabled": false
+        }
+        """
         return self.keycloak_admin.update_client_management_permissions(payload, client_id)
     
     def update_client_authz_resource_permission(self, client_id, payload, permission_id):
+        """
+        Body example : 
+        {
+            "decisionStrategy": "UNANIMOUS",
+            "description": "A permission that applies to the default resource type 1",
+            "id": "e4bece95-80eb-411d-bf6d-98958fb82258",
+            "logic": "POSITIVE",
+            "name": "Default Permission",
+            "resourceType": "urn:resources-management:resources:default",
+            "type": "resource"
+        }
+        """
         params_path = {"realm-name": self.realm, "id": client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/permission/resource/" + permission_id
         data_raw = self.keycloak_admin.raw_put(url.format(**params_path), data = json.dumps(payload))
