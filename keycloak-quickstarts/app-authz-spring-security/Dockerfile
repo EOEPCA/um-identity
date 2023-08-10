@@ -5,18 +5,18 @@ WORKDIR /home/app
 COPY pom.xml .
 COPY maven-settings.xml .
 
-WORKDIR app-authz-springboot
+WORKDIR app-authz-spring-security
 
-COPY app-authz-springboot/mvnw .
-COPY app-authz-springboot/.mvn .mvn
-COPY app-authz-springboot/pom.xml .
-COPY app-authz-springboot/src src
+COPY app-authz-spring-security/mvnw .
+COPY app-authz-spring-security/.mvn .mvn
+COPY app-authz-spring-security/pom.xml .
+COPY app-authz-spring-security/src src
 
 RUN sed -i 's/\r$//' ./mvnw
 
 RUN chmod +x mvnw && \
     ./mvnw package spring-boot:repackage && \
-    cp /home/app/app-authz-springboot/target/app-authz-springboot-21.1.1.jar /app.jar
+    cp /home/app/app-authz-spring-security/target/app-authz-spring-security-21.1.1.jar /app.jar
 
 ################################
 ### stage 2 - package java  ###

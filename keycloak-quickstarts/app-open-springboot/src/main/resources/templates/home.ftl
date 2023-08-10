@@ -8,10 +8,8 @@
 <body>
 
 <header>
-     <h3>Welcome</h3>
-     <p></p>
-     <p><a id="protected-resource" href="/protected">Any authenticated user with a role "user" can access this resource</a></p>
-     <p><a id="premium-resource" href="/protected/premium">Only users with a role "user-premium" can access this resource</a></p>
+     <h3>Welcome, all users have access to this page</h3>
+    <p><a href="/logout" id="logout">Logout</a></p>
 </header>
 
 

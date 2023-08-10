@@ -201,7 +201,7 @@ spec:
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
-              path: /ping
+              path: {{ .Values.livenessProbe.path }}
               port: {{ .Values.httpScheme }}
               scheme: {{ .Values.httpScheme | upper }}
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
@@ -210,7 +210,7 @@ spec:
           {{- if .Values.readinessProbe.enabled }}
           readinessProbe:
             httpGet:
-              path: {{ if gt (include "oauth2-proxy.chart" .) "7.4.0" }}/ready{{ else }}/ping{{ end }}
+              path: {{ .Values.readinessProbe.path }}
               port: {{ .Values.httpScheme }}
               scheme: {{ .Values.httpScheme | upper }}
             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}

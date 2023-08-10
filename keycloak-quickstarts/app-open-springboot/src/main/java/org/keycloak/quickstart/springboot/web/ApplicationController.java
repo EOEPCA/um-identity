@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -33,14 +34,9 @@ public class ApplicationController {
     @Autowired
     private HttpServletRequest request;
 
-    @RequestMapping(value = "/protected", method = RequestMethod.GET)
+    @RequestMapping(value = "/eric", method = RequestMethod.GET)
     public String handleProtected(Model model) {
-        return "protected";
-    }
-
-    @RequestMapping(value = "/protected/premium", method = RequestMethod.GET)
-    public String handlePremium(Model model) {
-        return "premium";
+        return "eric";
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
@@ -54,8 +50,4 @@ public class ApplicationController {
         return "home";
     }
 
-    @RequestMapping(value = "/accessDenied", method = RequestMethod.GET)
-    public String handleAccessDenied() throws ServletException {
-        return "access-denied";
-    }
 }

@@ -20,7 +20,7 @@ services:
         volumes:
             - ./identity-api/config:/app/config
     keycloak:
-        image: quay.io/keycloak/keycloak:21.0
+        image: quay.io/keycloak/keycloak:22.0
         container_name: keycloak
         networks:
             - eoepca_network

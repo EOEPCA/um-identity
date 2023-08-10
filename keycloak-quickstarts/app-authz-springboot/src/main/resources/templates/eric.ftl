@@ -11,7 +11,5 @@
      <h3>Eric workspace. Only Eric user should have access to this page</h3>
     <p><a href="/logout" id="logout">Logout</a></p>
 </header>
-
-
 </body>
 </html>

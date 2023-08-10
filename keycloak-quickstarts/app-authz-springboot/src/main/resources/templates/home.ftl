@@ -15,6 +15,7 @@
 
      <p><a id="protected-resource" href="/protected">Any authenticated user with a role "user" can access this resource</a></p>
      <p><a id="premium-resource" href="/protected/premium">Only users with a role "user-premium" can access this resource</a></p>
+     <p><a id="premium-resource" href="/eric">Only Eric can access this resource</a></p>
 
      <p>You have permissions to access the following resources:</p>
 

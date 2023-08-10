@@ -38,6 +38,12 @@ public class ApplicationController {
     @Autowired
     private HttpServletRequest request;
 
+    @RequestMapping(value = "/eric", method = RequestMethod.GET)
+    public String handleEricWorkspace(Model model) {
+        configCommonAttributes(model);
+        return "eric";
+    }
+
     @RequestMapping(value = "/protected", method = RequestMethod.GET)
     public String handleProtected(Model model) {
         configCommonAttributes(model);

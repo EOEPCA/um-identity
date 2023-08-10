@@ -54,7 +54,7 @@ podDisruptionBudget:
   enabled: true
   minAvailable: 1
 # whether to use http or https
-httpScheme: https
+httpScheme: http
 
 
 image:
@@ -83,9 +83,9 @@ service:
   # loadBalancerSourceRanges: 203.0.113.0/24
   # when service.type is NodePort ...
   # nodePort: 80
-  portNumber: 4443
+  portNumber: 4180
   # Protocol set on the service
-  appProtocol: https
+  appProtocol: http
   annotations: {}
   # foo.io/bar: "true"
 
@@ -225,7 +225,7 @@ hostAlias:
   # hostname: "auth.example.com"
 
 # Define which port will be used in the containers
-containerPort: 4443
+containerPort: 4180
 # Configure Kubernetes liveness and readiness probes.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
 # Disable both when deploying with Istio 1.0 mTLS. https://istio.io/help/faq/security/#k8s-health-checks
@@ -233,12 +233,14 @@ livenessProbe:
   enabled: true
   initialDelaySeconds: 0
   timeoutSeconds: 1
+  path: /ping
 readinessProbe:
   enabled: true
   initialDelaySeconds: 0
   timeoutSeconds: 5
   periodSeconds: 10
   successThreshold: 1
+  path: /ping
 # Pod resource requests and limits
 resources: {}
   # requests:
@@ -341,12 +343,12 @@ config:
   # Use an existing config map (see configmap.yaml for required fields)
   existingConfig: ~
   configFile: |-
-    http_address = "0.0.0.0:4443"
+    http_address = "0.0.0.0:4180"
     cookie_secure = true
     cookie_secret = "JxJZrvNo4z1VJIiDMDGJe3q4TjmpVxMNHziW97J9UAo="
     upstreams = ["https://dummy-service.develop.eoepca.org"]
-    cookie_domains = [".eoepca.org"] # Required so cookie can be read on all subdomains.
-    whitelist_domains = [".eoepca.org"] # Required to allow redirection back to original requested target.
+    cookie_domains = [".eoepca.org", "localhost"] # Required so cookie can be read on all subdomains.
+    whitelist_domains = [".eoepca.org", "localhost"] # Required to allow redirection back to original requested target.
     pass_access_token = true
     set_xauthrequest = true
     # allow accounts to sign-in with empty emails
@@ -365,3 +367,5 @@ config:
     provider_display_name = "Keycloak"
     skip_provider_button = true
     skip_jwt_bearer_tokens = true
+    pass_host_header = false
+    pass_authorization_header = true

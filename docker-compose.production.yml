@@ -15,7 +15,7 @@ services:
         ports:
             - '8080:8081'
     keycloak:
-        image: quay.io/keycloak/keycloak:21.0
+        image: quay.io/keycloak/keycloak:22.0
         container_name: keycloak
         networks:
             - eoepca_network

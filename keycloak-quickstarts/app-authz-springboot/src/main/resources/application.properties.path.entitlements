@@ -26,3 +26,5 @@ keycloak.policy-enforcer-config.paths[2].name=User Resource
 keycloak.policy-enforcer-config.paths[2].path=/protected/{user_name}
 keycloak.policy-enforcer-config.paths[3].name=Premium Resource
 keycloak.policy-enforcer-config.paths[3].path=/protected/premium
+keycloak.policy-enforcer-config.paths[4].name=Eric workspace
+keycloak.policy-enforcer-config.paths[4].path=/eric

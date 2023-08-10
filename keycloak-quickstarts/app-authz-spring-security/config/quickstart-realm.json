@@ -100,13 +100,6 @@
                 ],
                 "policies": [
                     {
-                        "name": "Default Policy",
-                        "description": "A policy that always grant access",
-                        "type": "script-always-grant.js",
-                        "logic": "POSITIVE",
-                        "decisionStrategy": "AFFIRMATIVE"
-                    },
-                    {
                         "name": "Only Premium User Policy",
                         "type": "role",
                         "logic": "POSITIVE",

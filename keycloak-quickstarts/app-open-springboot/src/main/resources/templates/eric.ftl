@@ -3,12 +3,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home Page</title>
+    <title>Eric Page</title>
 </head>
 <body>
 
 <header>
-     <h3>Welcome, user has access to this page</h3>
+     <h3>Eric workspace. Only Eric user should have access to this page</h3>
     <p><a href="/logout" id="logout">Logout</a></p>
 </header>
 
