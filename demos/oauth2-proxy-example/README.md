@@ -13,7 +13,7 @@ To start the applciatin run:
 docker compose up
 ```  
 Go to Keycloak Admin UI and add a new client for oauth2-proxy.  
-Copy and paste client id and client secret into .env
+Copy and paste client id and client secret into .env  
 Re-run docker compose:
 ```shell
 docker compose up

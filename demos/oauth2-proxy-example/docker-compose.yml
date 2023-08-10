@@ -44,7 +44,7 @@ services:
             timeout: 5s
             retries: 5
     oauth2-proxy:
-        image: bitnami/oauth2-proxy:7.3.0
+        image: quay.io/oauth2-proxy/oauth2-proxy:v7.4.0
         container_name: oauth2-proxy
         depends_on:
             - redis
