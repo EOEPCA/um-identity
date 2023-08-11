@@ -14,4 +14,4 @@ FROM amazoncorretto:17
 COPY --from=builder /usr/src/app/target/app.jar /usr/app/app.jar
 WORKDIR /usr/app
 ENTRYPOINT ["java", "-jar", "app.jar"]
-EXPOSE 8080
+EXPOSE 7070

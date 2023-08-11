@@ -1,0 +1,72 @@
+version: "3.7"
+
+services:
+    web-app:
+        build: .
+        container_name: web-app
+        ports:
+            - '7070:7070'
+    keycloak:
+        image: quay.io/keycloak/keycloak:22.0
+        container_name: keycloak
+        restart: on-failure
+        ports:
+            - '8080:8080'
+        environment:
+            - KEYCLOAK_LOGLEVEL=DEBUG
+            - WILDFLY_LOGLEVEL=DEBUG
+            - KEYCLOAK_ADMIN=admin
+            - KEYCLOAK_ADMIN_PASSWORD=admin
+            - KC_DB_URL_HOST=postgres
+            - KC_DB=postgres
+            - KC_DB_USERNAME=keycloak
+            - KC_DB_PASSWORD=123456
+            - KC_DB_URL_PORT=5432
+            - KC_HEALTH_ENABLED=true
+        entrypoint: /opt/keycloak/bin/kc.sh start-dev --import-realm
+        volumes:
+            - ./keycloak/health-check.sh:/opt/keycloak/health-check.sh
+            - ./realm.json:/opt/keycloak/data/import/realm.json
+        healthcheck:
+            test: "bash /opt/keycloak/health-check.sh"
+            interval: 5s
+            timeout: 60s
+            retries: 12
+        depends_on:
+            postgres:
+                condition: service_healthy
+    postgres:
+        image: postgres:12.10
+        container_name: postgres
+        ports:
+            - '5432:5432'
+        volumes:
+            - ./postgres/data:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_DB=keycloak
+            - POSTGRES_USER=keycloak
+            - PGUSER=keycloak
+            - POSTGRES_PASSWORD=123456
+            - PGPASSWORD=123
+            - PGDATA=/var/lib/postgresql/data/keycloak
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -d keycloak -U keycloak"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+    gatekeeper:
+        image: quay.io/gogatekeeper/gatekeeper:2.6.0
+        container_name: gatekeeper
+        ports:
+            - '3000:3000'
+        restart: on-failure
+        volumes:
+            - ./config/gatekeeper/:/gatekeeper/:ro
+        environment:
+            - PROXY_CONFIG_FILE=/gatekeeper/config.yml
+        depends_on:
+            keycloak:
+                condition: service_healthy
+volumes:
+    cache:
+        driver: local

@@ -9,7 +9,7 @@
         <relativePath/>
     </parent>
     <groupId>um.identity.example</groupId>
-    <artifactId>oauth2-proxy-example</artifactId>
+    <artifactId>auth-proxy-example</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <description>Echo Web App</description>
     <properties>
