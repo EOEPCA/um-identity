@@ -7,6 +7,11 @@ discovery-url: http://keycloak:8080/realms/master
 enable-default-deny: true
 encryption-key: AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j
 listen: :3000
+enable-metrics: true
+enable-logging: true
+enable-request-id: true
+enable-refresh-tokens: true
+enable-login-handler: true
 upstream-url: http://web-app:7070
 secure-cookie: false
 # a collection of resource i.e. URLs that you wish to protect, this are simple gatekeeper authorization rules,
