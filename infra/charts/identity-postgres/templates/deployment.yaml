@@ -41,7 +41,7 @@ spec:
             {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ include "postgres.name" . }}-secret
+                name: {{ include "postgres.name" . }}
             {{- with .Values.deployment.extraEnvFrom }}
             {{- tpl . $ | nindent 12 }}
             {{- end }}

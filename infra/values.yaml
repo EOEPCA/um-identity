@@ -1,36 +1,48 @@
-identity-api:
-    enabled: true
-    deployment:
-        image:
-            repository: ghcr.io/eoepca/um-identity-api
-            pullPolicy: Always
-identity-manager:
-    enabled: true
-    deployment:
-        image:
-            repository: ghcr.io/eoepca/um-identity-manager
-            pullPolicy: Always
 identity-keycloak:
-    enabled: true
-    deployment:
-        image:
-            repository: quay.io/keycloak/keycloak
-            pullPolicy: IfNotPresent
-identity-proxy:
-    enabled: true
-    deployment:
-        image:
-            repository: quay.io/oauth2-proxy/oauth2-proxy
-            pullPolicy: IfNotPresent
+  enabled: true
+  deployment:
+    image:
+      repository: quay.io/keycloak/keycloak
+      pullPolicy: IfNotPresent
 identity-postgres:
-    enabled: true
-    deployment:
-        image:
-            repository: postgres
-            pullPolicy: IfNotPresent
+  enabled: true
+  deployment:
+    image:
+      repository: postgres
+      pullPolicy: IfNotPresent
+identity-api:
+  enabled: true
+  deployment:
+    image:
+      repository: ghcr.io/eoepca/um-identity-api
+      pullPolicy: Always
+identity-manager:
+  enabled: true
+  deployment:
+    image:
+      repository: ghcr.io/eoepca/um-identity-manager
+      pullPolicy: Always
+identity-gatekeeper:
+  enabled: true
+  deployment:
+    image:
+      repository: quay.io/gogatekeeper/gatekeeper
+      pullPolicy: IfNotPresent
+unprotected-service:
+  enabled: true
+  deployment:
+    image:
+      repository: ghcr.io/eoepca/um-unprotected-service
+      pullPolicy: IfNotPresent
+identity-proxy:
+  enabled: false
+  deployment:
+    image:
+      repository: quay.io/oauth2-proxy/oauth2-proxy
+      pullPolicy: IfNotPresent
 identity-nginx:
-    enabled: true
-    deployment:
-        image:
-            repository: nginxinc/nginx-unprivileged:alpine
-            pullPolicy: IfNotPresent
+  enabled: false
+  deployment:
+    image:
+      repository: nginxinc/nginx-unprivileged
+      pullPolicy: IfNotPresent

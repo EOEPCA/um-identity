@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: identity-{{ include "postgres.name" . }}
+  name: {{ include "postgres.name" . }}
   labels:
     {{- include "postgres.labels" . | nindent 4 }}
 data:

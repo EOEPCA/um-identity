@@ -1,16 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "nginx.name" . }}
+  name: {{ include "identity-api.name" . }}
   labels:
-    {{- include "nginx.labels" . | nindent 4 }}
+    {{- include "identity-api.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.deployment.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "nginx.selectorLabels" . | nindent 6 }}
+      {{- include "identity-api.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.deployment.podAnnotations }}
@@ -18,13 +16,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "nginx.selectorLabels" . | nindent 8 }}
+        {{- include "identity-api.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.deployment.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "nginx.serviceAccountName" . }}
+      serviceAccountName: {{ include "identity-api.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.deployment.podSecurityContext | nindent 8 }}
       containers:
@@ -33,20 +31,6 @@ spec:
             {{- toYaml .Values.deployment.securityContext | nindent 12 }}
           image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
-          {{- if .Values.servers.enable }}
-          command:
-            - nginx
-            - -c /opt/nginx_agent/conf/nginx.conf
-            - -g daemon off;
-          {{- end }}
-          env:
-            {{- with .Values.deployment.extraEnv }}
-            {{- tpl . $ | nindent 12 }}
-            {{- end }}
-          envFrom:
-            {{- with .Values.deployment.extraEnvFrom }}
-            {{- tpl . $ | nindent 12 }}
-            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.deployment.containerPort }}
@@ -68,25 +52,6 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.deployment.resources | nindent 12 }}
-          volumeMounts:
-            {{- if .Values.servers }}
-            - name: nginx-server-block
-              mountPath: /opt/nginx_agent/conf
-            {{- end }}
-            {{- if (include "nginx.useStaticSite" .) }}
-            - name: staticsite
-              mountPath: /app
-            {{- end }}
-      volumes:
-        {{- if .Values.servers }}
-        - name: nginx-server-block
-          configMap:
-            name: {{ include "nginx.serversConfigmapName" . }}
-        {{- end }}
-        {{- if include "nginx.useStaticSite" . }}
-        - name: staticsite
-          {{- include "nginx.staticSiteVolume" . | nindent 10 }}
-        {{- end }}
       {{- with .Values.deployment.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

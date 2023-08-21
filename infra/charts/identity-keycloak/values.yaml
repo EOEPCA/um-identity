@@ -117,7 +117,9 @@ ingress:
   enabled: true
   className: ""
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-staging
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: selfsigned-issuer
   hosts:
     - host: identity.keycloak.local.eoepca.org
       paths:
@@ -132,7 +134,7 @@ ingress:
 # ---------------------------------------
 service:
   type: ClusterIP
-  port: 8082
+  port: 8080
 
 serviceAccount:
   # Specifies whether a service account should be created

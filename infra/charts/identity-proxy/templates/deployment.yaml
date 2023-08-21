@@ -53,7 +53,7 @@ spec:
       hostAliases:
         - ip: {{ .Values.hostAlias.ip }}
           hostnames:
-          - {{ .Values.hostAlias.hostname }}
+            - {{ .Values.hostAlias.hostname }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -119,63 +119,63 @@ spec:
           {{- end }}
           env:
           {{- if .Values.proxyVarsAsSecrets }}
-          - name: OAUTH2_PROXY_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "oauth2-proxy.secretName" . }}
-                key: client-id
-          - name: OAUTH2_PROXY_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "oauth2-proxy.secretName" . }}
-                key: client-secret
-          - name: OAUTH2_PROXY_COOKIE_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: {{ template "oauth2-proxy.secretName" . }}
-                key: cookie-secret
+            - name: OAUTH2_PROXY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "oauth2-proxy.secretName" . }}
+                  key: client-id
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "oauth2-proxy.secretName" . }}
+                  key: client-secret
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "oauth2-proxy.secretName" . }}
+                  key: cookie-secret
           {{- end }}
           {{- if eq (default "cookie" .Values.sessionStorage.type) "redis" }}
-          - name: OAUTH2_PROXY_SESSION_STORE_TYPE
-            value: "redis"
+            - name: OAUTH2_PROXY_SESSION_STORE_TYPE
+              value: "redis"
           {{- if or .Values.sessionStorage.redis.existingSecret .Values.sessionStorage.redis.password (and .Values.redis.enabled (.Values.redis.auth).enabled )}}
-          - name: OAUTH2_PROXY_REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
+            - name: OAUTH2_PROXY_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
                 {{- if .Values.sessionStorage.redis.existingSecret }}
-                name: {{ .Values.sessionStorage.redis.existingSecret }}
+                  name: {{ .Values.sessionStorage.redis.existingSecret }}
                 {{- else if .Values.sessionStorage.redis.password }}
-                name: {{ template "oauth2-proxy.name" . }}-redis-access
+                  name: {{ template "oauth2-proxy.name" . }}-redis-access
                 {{- else }}
-                name: {{ include "oauth2-proxy.redis.fullname" . }}
+                  name: {{ include "oauth2-proxy.redis.fullname" . }}
                 {{- end }}
-                key: {{ .Values.sessionStorage.redis.passwordKey }}
+                  key: {{ .Values.sessionStorage.redis.passwordKey }}
           {{- end }}
           {{- if eq (default "" .Values.sessionStorage.redis.clientType) "standalone" }}
-          - name: OAUTH2_PROXY_REDIS_CONNECTION_URL
-            value: {{ include "oauth2-proxy.redis.StandaloneUrl" . }}
+            - name: OAUTH2_PROXY_REDIS_CONNECTION_URL
+              value: {{ include "oauth2-proxy.redis.StandaloneUrl" . }}
           {{- else if eq (default "" .Values.sessionStorage.redis.clientType) "cluster" }}
-          - name: OAUTH2_PROXY_REDIS_USE_CLUSTER
-            value: "true"
-          - name: OAUTH2_PROXY_REDIS_CLUSTER_CONNECTION_URLS
-            value: {{ .Values.sessionStorage.redis.cluster.connectionUrls }}
+            - name: OAUTH2_PROXY_REDIS_USE_CLUSTER
+              value: "true"
+            - name: OAUTH2_PROXY_REDIS_CLUSTER_CONNECTION_URLS
+              value: {{ .Values.sessionStorage.redis.cluster.connectionUrls }}
           {{- else if eq (default "" .Values.sessionStorage.redis.clientType) "sentinel" }}
-          - name: OAUTH2_PROXY_REDIS_USE_SENTINEL
-            value: "true"
-          - name: OAUTH2_PROXY_REDIS_SENTINEL_MASTER_NAME
-            value: {{ .Values.sessionStorage.redis.sentinel.masterName }}
-          - name: OAUTH2_PROXY_REDIS_SENTINEL_CONNECTION_URLS
-            value: {{ .Values.sessionStorage.redis.sentinel.connectionUrls }}
+            - name: OAUTH2_PROXY_REDIS_USE_SENTINEL
+              value: "true"
+            - name: OAUTH2_PROXY_REDIS_SENTINEL_MASTER_NAME
+              value: {{ .Values.sessionStorage.redis.sentinel.masterName }}
+            - name: OAUTH2_PROXY_REDIS_SENTINEL_CONNECTION_URLS
+              value: {{ .Values.sessionStorage.redis.sentinel.connectionUrls }}
           {{- if or .Values.sessionStorage.redis.sentinel.existingSecret .Values.sessionStorage.redis.existingSecret .Values.sessionStorage.redis.sentinel.password }}
-          - name: OAUTH2_PROXY_REDIS_SENTINEL_PASSWORD
-            valueFrom:
-              secretKeyRef:
+            - name: OAUTH2_PROXY_REDIS_SENTINEL_PASSWORD
+              valueFrom:
+                secretKeyRef:
                 {{- if or .Values.sessionStorage.redis.sentinel.existingSecret .Values.sessionStorage.redis.existingSecret }}
-                name: {{ .Values.sessionStorage.redis.sentinel.existingSecret | default .Values.sessionStorage.redis.existingSecret }}
+                  name: {{ .Values.sessionStorage.redis.sentinel.existingSecret | default .Values.sessionStorage.redis.existingSecret }}
                 {{- else }}
-                name: {{ template "oauth2-proxy.name" . }}-redis-access
+                  name: {{ template "oauth2-proxy.name" . }}-redis-access
                 {{- end }}
-                key: {{ .Values.sessionStorage.redis.sentinel.passwordKey }}
+                  key: {{ .Values.sessionStorage.redis.sentinel.passwordKey }}
           {{- end }}
           {{- end }}
           {{- end }}

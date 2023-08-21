@@ -24,6 +24,7 @@ configMap:
 # Variable used in pv and pvc template
 # ---------------------------------------------
 persistence:
+  name: eoepca-userman-pv
   type: local
   storageClassName: manual
   storage: 1Gi
@@ -136,4 +137,4 @@ serviceAccount:
 
 volumeClaim:
   name: eoepca-userman-pvc
-  create: false
+  create: true

@@ -1,4 +1,4 @@
-# Default values for identity-manager.
+# Default values for identity-api.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -9,16 +9,6 @@ nameOverride: ""
 namespaceOverride: ""
 fullnameOverride: ""
 restartPolicy: Always
-
-# ---------------------------------------------
-# Variable used in hpa template and deployment
-# ---------------------------------------------
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
 
 # ---------------------------------------
 # Variable used in Deployment template
@@ -33,35 +23,35 @@ deployment:
   # SecurityContext for the entire Pod. Every container running in the Pod will inherit this SecurityContext. This might be relevant when other components of the environment inject additional containers into running Pods (service meshes are the most prominent example for this)
   podSecurityContext:
     fsGroup: 1000
-  # SecurityContext for the identity-manager container
+  # SecurityContext for the identity-api container
   securityContext:
     runAsUser: 1000
     runAsNonRoot: true
   image:
-    repository: ghcr.io/eoepca/um-identity-manager
+    repository: ghcr.io/eoepca/um-unprotected-service
     pullPolicy: Always
 
   # Define which port will be used in the containers
-  containerPort: 8080
+  containerPort: 7070
   # Liveness probe configuration
   livenessProbe: |
     httpGet:
       path: /
-      port: 8080
+      port: 7070
     initialDelaySeconds: 0
     timeoutSeconds: 5
   # Readiness probe configuration
   readinessProbe: |
     httpGet:
       path: /
-      port: 8080
+      port: 7070
     initialDelaySeconds: 30
     timeoutSeconds: 1
   # Startup probe configuration
   startupProbe: |
     httpGet:
       path: /
-      port: http
+      port: 7070
     initialDelaySeconds: 30
     timeoutSeconds: 1
     failureThreshold: 60
@@ -85,6 +75,7 @@ deployment:
 # Variable group used in ingress template
 # ---------------------------------------
 ingress:
+  # TODO disable ingress (should be only accessible within the cluster)
   enabled: true
   className: ""
   annotations:
@@ -92,20 +83,20 @@ ingress:
     traefik.ingress.kubernetes.io/router.tls: "true"
     cert-manager.io/cluster-issuer: selfsigned-issuer
   hosts:
-    - host: identity.manager.local.eoepca.org
+    - host: identity.unprotected.local.eoepca.org
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: identity-manager-tls-certificate
+    - secretName: unprotected-service-tls-certificate
       hosts:
-        - identity.manager.local.eoepca.org
+        - identity.unprotected.local.eoepca.org
 # ---------------------------------------
 # Variable group used in ingress template
 # ---------------------------------------
 service:
   type: ClusterIP
-  port: 8080
+  port: 7070
 
 serviceAccount:
   # Specifies whether a service account should be created

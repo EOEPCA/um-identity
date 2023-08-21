@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "nginx.name" -}}
+{{- define "identity-protected.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "nginx.fullname" -}}
+{{- define "identity-protected.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,7 +26,7 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Allow the release namespace to be overridden for multi-namespace deployments in combined charts
 */}}
-{{- define "nginx.namespace" -}}
+{{- define "identity-protected.namespace" -}}
   {{- if .Values.namespaceOverride -}}
     {{- .Values.namespaceOverride -}}
   {{- else -}}
@@ -37,7 +37,7 @@ Allow the release namespace to be overridden for multi-namespace deployments in 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "nginx.chart" -}}
+{{- define "identity-protected.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -45,9 +45,9 @@ Create chart name and version as used by the chart label.
 {{/*
 Common labels
 */}}
-{{- define "nginx.labels" -}}
-helm.sh/chart: {{ include "nginx.chart" . }}
-{{ include "nginx.selectorLabels" . }}
+{{- define "identity-protected.labels" -}}
+helm.sh/chart: {{ include "identity-protected.chart" . }}
+{{ include "identity-protected.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -57,54 +57,18 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "nginx.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "nginx.name" . }}
+{{- define "identity-protected.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "identity-protected.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "nginx.serviceAccountName" -}}
+{{- define "identity-protected.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "nginx.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "identity-protected.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
-
-
-{{/*
-Return true if a static site should be mounted in the NGINX container
-*/}}
-{{- define "nginx.useStaticSite" -}}
-{{- if or (and .Values.cloneStaticSiteFromGit .Values.cloneStaticSiteFromGit.enabled) .Values.staticSiteConfigmap .Values.staticSitePVC }}
-    {- true -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return the custom NGINX server block configmap.
-*/}}
-{{- define "nginx.serversConfigmapName" -}}
-{{- if .Values.existingServerBlockConfigmap -}}
-    {{- printf "%s" (tpl .Values.existingServerBlockConfigmap $) -}}
-{{- else -}}
-    {{- printf "%s-server-block" (include "nginx.name" . ) -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return the volume to use to mount the static site in the NGINX container
-*/}}
-{{- define "nginx.staticSiteVolume" -}}
-{{- if .Values.cloneStaticSiteFromGit.enabled }}
-emptyDir: {}
-{{- else if .Values.staticSiteConfigmap }}
-configMap:
-  name: {{ printf "%s" (tpl .Values.staticSiteConfigmap $) -}}
-{{- else if .Values.staticSitePVC }}
-persistentVolumeClaim:
-  claimName: {{ printf "%s" (tpl .Values.staticSitePVC $) -}}
-{{- end }}
-{{- end -}}

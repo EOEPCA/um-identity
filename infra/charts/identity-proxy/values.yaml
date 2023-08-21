@@ -111,7 +111,7 @@ proxyVarsAsSecrets: true
 htpasswdFile:
   enabled: false
   existingSecret: ""
-  entries: [ ]
+  entries: []
   # One row for each user
   # example:
   # entries:
@@ -123,7 +123,7 @@ sessionStorage:
   # Can be one of the supported session storage cookie|redis
   type: cookie
   redis:
-  # Name of the Kubernetes secret containing the redis & redis sentinel password values (see also `sessionStorage.redis.passwordKey`)
+    # Name of the Kubernetes secret containing the redis & redis sentinel password values (see also `sessionStorage.redis.passwordKey`)
     existingSecret: ""
     # Redis password value. Applicable for all Redis configurations. Taken from redis subchart secret if not set. `sessionStorage.redis.existingSecret` takes precedence
     password: ""
@@ -136,7 +136,7 @@ sessionStorage:
       connectionUrl: ""
     cluster:
       # List of Redis cluster connection URLs (e.g. `["redis://127.0.0.1:8000", "redis://127.0.0.1:8000"]`)
-      connectionUrls: [ ]
+      connectionUrls: []
     sentinel:
       # Name of the Kubernetes secret containing the redis sentinel password value (see also `sessionStorage.redis.sentinel.passwordKey`). Default: `sessionStorage.redis.existingSecret`
       existingSecret: ""
@@ -147,7 +147,7 @@ sessionStorage:
       # Redis sentinel master name
       masterName: ""
       # List of Redis sentinel connection URLs (e.g. `["redis://127.0.0.1:8000", "redis://127.0.0.1:8000"]`)
-      connectionUrls: [ ]
+      connectionUrls: []
 # Enables and configure the automatic deployment of the redis subchart
 redis:
   # provision an instance of the redis sub-chart
@@ -188,33 +188,33 @@ metrics:
 
 # Extra K8s manifests to deploy
 extraObjects: []
-  # - apiVersion: secrets-store.csi.x-k8s.io/v1
-  #   kind: SecretProviderClass
-  #   metadata:
-  #   name: oauth2-proxy-secrets-store
-  #   spec:
-  #   provider: aws
-  #   parameters:
-  #     objects: |
-  #       - objectName: "oauth2-proxy"
-  #       objectType: "secretsmanager"
-  #       jmesPath:
-  #           - path: "client_id"
-  #           objectAlias: "client-id"
-  #           - path: "client_secret"
-  #           objectAlias: "client-secret"
-  #           - path: "cookie_secret"
-  #           objectAlias: "cookie-secret"
-  #   secretObjects:
-  #   - data:
-  #     - key: client-id
-  #       objectName: client-id
-  #       - key: client-secret
-  #       objectName: client-secret
-  #       - key: cookie-secret
-  #       objectName: cookie-secret
-  #     secretName: oauth2-proxy-secrets-store
-  #     type: Opaque
+        # - apiVersion: secrets-store.csi.x-k8s.io/v1
+        #   kind: SecretProviderClass
+        #   metadata:
+        #   name: oauth2-proxy-secrets-store
+        #   spec:
+        #   provider: aws
+        #   parameters:
+        #     objects: |
+        #       - objectName: "oauth2-proxy"
+        #       objectType: "secretsmanager"
+        #       jmesPath:
+        #           - path: "client_id"
+        #           objectAlias: "client-id"
+        #           - path: "client_secret"
+        #           objectAlias: "client-secret"
+        #           - path: "cookie_secret"
+        #           objectAlias: "cookie-secret"
+        #   secretObjects:
+        #   - data:
+        #     - key: client-id
+        #       objectName: client-id
+        #       - key: client-secret
+        #       objectName: client-secret
+        #       - key: cookie-secret
+        #       objectName: cookie-secret
+        #     secretName: oauth2-proxy-secrets-store
+#     type: Opaque
 
 priorityClassName: ""
 
@@ -243,12 +243,12 @@ readinessProbe:
   path: /ping
 # Pod resource requests and limits
 resources: {}
-  # requests:
-  #   cpu: "500m"
-  #   memory: "1024Mi"
-  # limits:
-  #   cpu: "500m"
-  #   memory: "1024Mi"
+        # requests:
+        #   cpu: "500m"
+        #   memory: "1024Mi"
+        # limits:
+        #   cpu: "500m"
+#   memory: "1024Mi"
 # Node labels for Pod assignment
 nodeSelector: {}
 # Pod affinity
@@ -263,7 +263,9 @@ ingress:
   enabled: true
   className: ""
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-staging
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: selfsigned-issuer
   hosts:
     - host: identity.proxy.local.eoepca.org
       paths:
