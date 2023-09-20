@@ -91,7 +91,7 @@ services:
         #    keycloak:
         #        condition: service_healthy
     web-app:
-        build: demos/auth-proxy-example
+        build: demos/echo
         container_name: web-app
         networks:
             - eoepca_network
