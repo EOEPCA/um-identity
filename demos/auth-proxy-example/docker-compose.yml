@@ -23,6 +23,7 @@ services:
             - KC_DB_PASSWORD=123456
             - KC_DB_URL_PORT=5432
             - KC_HEALTH_ENABLED=true
+            - KC_FEATURES=account3,admin-fine-grained-authz,declarative-user-profile,recovery-codes,scripts
         entrypoint: /opt/keycloak/bin/kc.sh start-dev --import-realm
         volumes:
             - ./keycloak/health-check.sh:/opt/keycloak/health-check.sh
@@ -55,8 +56,8 @@ services:
             timeout: 5s
             retries: 5
     gatekeeper:
-        #image: quay.io/gogatekeeper/gatekeeper:2.6.0
-        image: proxy-uma
+        image: quay.io/gogatekeeper/gatekeeper:2.7.0
+        #image: proxy-uma
         container_name: gatekeeper
         ports:
             - '3000:3000'
@@ -64,7 +65,7 @@ services:
         volumes:
             - ./config/gatekeeper/:/gatekeeper/:ro
         environment:
-            - PROXY_CONFIG_FILE=/gatekeeper/config-uma.yml
+            - PROXY_CONFIG_FILE=/gatekeeper/config.yml
         #depends_on:
         #    keycloak:
         #        condition: service_healthy
