@@ -1,0 +1,24 @@
+server:
+  port: 7071
+  max-http-header-size: 1MB
+logging:
+  level:
+    root: debug
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: spring-boot-demo
+            client-secret: NQDKaX9jBYGS8rYW0KOHhofYGI54FLPe
+            authorization-grant-type: authorization_code
+            scope: openid,profile,email,offline_access
+        provider:
+          keycloak:
+            issuer-uri: http://keycloak:8080/realms/master
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/master
