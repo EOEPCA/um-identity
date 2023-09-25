@@ -1,21 +1,23 @@
 version: "3.7"
 
 services:
-  open-echo:
-    build: spring-boot-echo
-    container_name: spring-boot-echo
-    ports:
-      - '7070:7070'
+#  open-echo:
+#    build: spring-boot-echo
+#    container_name: spring-boot-echo
+#    ports:
+#      - '7070:7070'
   oauth2-client:
     build: spring-boot-oauth2-client
     container_name: spring-boot-oauth2-client
+    restart: on-failure
     ports:
       - '7071:7071'
-  oauth2-resource-server:
-    build: spring-boot-oauth2-resource-server
-    container_name: spring-boot-oauth2-resource-server
-    ports:
-      - '7072:7072'
+#  oauth2-resource-server:
+#    build: spring-boot-oauth2-resource-server
+#    container_name: spring-boot-oauth2-resource-server
+#    restart: on-failure
+#    ports:
+#      - '7072:7072'
   keycloak:
     image: quay.io/keycloak/keycloak:22.0.3
     container_name: keycloak

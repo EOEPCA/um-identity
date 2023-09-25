@@ -1,5 +1,7 @@
 package um.identity.config;
 
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,9 +48,13 @@ public class WebSecurityConfig {
 				.requestMatchers(
 						new AntPathRequestMatcher("/"),
 						new AntPathRequestMatcher("/login/**"),
-						new AntPathRequestMatcher("/oauth2/**"
-						)).permitAll()
-				.requestMatchers(new AntPathRequestMatcher("/nice.html")).hasAuthority("NICE")
+						new AntPathRequestMatcher("/oauth2/**"),
+						new AntPathRequestMatcher("/actuator/health/readiness"),
+						new AntPathRequestMatcher("/actuator/health/liveness"),
+						new AntPathRequestMatcher("/error/**"),
+						new AntPathRequestMatcher("/v3/api-docs/**")
+				).permitAll()
+				.requestMatchers(new AntPathRequestMatcher("/customers")).hasRole("ADMIN")
 				.anyRequest().authenticated());
 		// @formatter:on
 		return http.build();
@@ -83,7 +89,16 @@ public class WebSecurityConfig {
 
 		@SuppressWarnings({"rawtypes", "unchecked"})
 		private static Collection<GrantedAuthority> extractAuthorities(Map<String, Object> claims) {
-			return claims.values().stream().flatMap(claim -> {
+			return claims.entrySet().stream()
+					.filter(c -> Set.of("realm_access", "resource_access").contains(c.getKey()))
+					.map(Map.Entry::getValue)
+					.flatMap(c -> Stream.of("$.roles", "$.*.roles").flatMap(claimPaths -> {
+						Object claim;
+						try {
+							claim = JsonPath.read(c, claimPaths);
+						} catch (PathNotFoundException e) {
+							claim = null;
+						}
 						if (claim == null) {
 							return Stream.empty();
 						}
@@ -107,8 +122,8 @@ public class WebSecurityConfig {
 							}
 						}
 						return Stream.empty();
-					})
-					/* Insert some transformation here if you want to add a prefix like "ROLE_" or force upper-case authorities */
+					}))
+					.map(r -> "ROLE_" + r.toUpperCase())
 					.map(SimpleGrantedAuthority::new)
 					.map(GrantedAuthority.class::cast).toList();
 		}

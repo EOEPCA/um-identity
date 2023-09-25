@@ -110,7 +110,7 @@ public class WebSecurityConfig {
 						}
 						return Stream.empty();
 					})
-					/* Insert some transformation here if you want to add a prefix like "ROLE_" or force upper-case authorities */
+					.map(r -> "ROLE_" + r.toUpperCase())
 					.map(SimpleGrantedAuthority::new)
 					.map(GrantedAuthority.class::cast).toList();
 		}
