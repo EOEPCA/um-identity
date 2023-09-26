@@ -12,8 +12,6 @@ logger = logging.getLogger("IDENTITY_UTILS")
 class KeycloakClient:
 
     def __init__(self, server_url, realm, resource_server_endpoint, username, password):
-        if 'https' not in server_url and '/auth' not in server_url:
-            server_url = server_url + '/auth/'
         self.server_url = server_url
         self.realm = realm
         self.resource_server_endpoint = resource_server_endpoint

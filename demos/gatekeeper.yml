@@ -1,5 +1,5 @@
-client-id: gatekeeper
-client-secret: P0Co0c1DoX4KAykhpvyBKSFLtlrclkcY # require for access_type: confidential
+client-id: spring-boot-demo
+client-secret: NQDKaX9jBYGS8rYW0KOHhofYGI54FLPe # require for access_type: confidential
 # Note the redirection-url is optional, it will default to the URL scheme and host,
 # only in case of forward auth it will use X-Forwarded-Proto / X-Forwarded-Host, please see forward-auth section
 discovery-url: http://keycloak:8080/realms/master
@@ -8,23 +8,22 @@ listen: :3000
 enable-request-id: true
 enable-refresh-tokens: true
 enable-login-handler: true
-#upstream-url: http://open-echo:7071
-upstream-url: http://resource-server:7071
+#upstream-url: http://spring-boot-echo:7070
+#upstream-url: http://spring-boot-oauth2-client:7071
+upstream-url: http://spring-boot-oauth2-resource-server:7072
 secure-cookie: false
 enable-uma: true
 enable-logout-redirect: true
 enable-metrics: true
 enable-logging: true
 #enable-uma-method-scope: true
+# Adds custom headers
 headers:
     myheader1: value_1
     myheader2: value_2
 #resources:
     #- uri: /oauth/*
     #  white-listed: true
-
-
-
     #enable-forwarding: true
     #forwarding-username: admin
     #forwarding-password: admin
@@ -51,4 +50,3 @@ headers:
     #  - uri: /img/*
     #      # Allow access to the resource above
 #    white-listed: true
-# Adds custom headers
