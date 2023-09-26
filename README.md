@@ -71,10 +71,7 @@ Includes five main components:
 Using Docker compose:
 
 ```shell
-cd keycloak-quickstarts
-docker build . -t keycloak-springboot-demo
-cd ..
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 Using Helm:
