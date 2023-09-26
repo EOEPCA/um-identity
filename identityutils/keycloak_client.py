@@ -420,9 +420,9 @@ class KeycloakClient:
         logger.info('Created client:\n' + json.dumps(client, indent=2))
         print("here====>>>>>")
         if options.get('serviceAccountsEnabled'):
-            print("here====>>>>>"+client)
+            print("here====>>>>>",client)
             user = self.__get_service_account_user(client.get('id'))
-            print("here====>>>>>"+user)
+            print("here====>>>>>",user)
             print("here====>>>>>")
             user_id = user.get('id')
             logger.info('Created service account user:\n' + json.dumps(user, indent=2))
