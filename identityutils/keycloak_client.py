@@ -463,7 +463,7 @@ class KeycloakClient:
 
     def __get_service_account_user(self, client_id: str):
         data_raw = self.keycloak_admin.connection.raw_get(
-            self.server_url + 'admin/realms/' + self.realm + '/clients/' + client_id + '/service-account-user')
+            self.server_url + '/admin/realms/' + self.realm + '/clients/' + client_id + '/service-account-user')
     
     def get_policies(self,
                     resource: str = "",
