@@ -421,7 +421,7 @@ class KeycloakClient:
         print("here====>>>>>")
         if options.get('serviceAccountsEnabled'):
             print("here====>>>>>",client)
-            user = self.__get_service_account_user(client['id'])
+            user = self.__get_service_account_user(client['id']).json()
             print("here====>>>>>",user)
             print("here====>>>>>")
             user_id = user.get('id')
@@ -462,8 +462,11 @@ class KeycloakClient:
         return self.resources_client
 
     def __get_service_account_user(self, client_id: str):
-        return self.keycloak_admin.connection.raw_get(
+        data_raw = self.keycloak_admin.connection.raw_get(
             self.server_url + '/admin/realms/' + self.realm + '/clients/' + client_id + '/service-account-user')
+        return raise_error_from_response(
+            data_raw, KeycloakGetError
+        )
     
     def get_policies(self,
                     resource: str = "",
