@@ -421,7 +421,7 @@ class KeycloakClient:
         print("here====>>>>>")
         if options.get('serviceAccountsEnabled'):
             print("here====>>>>>",client)
-            user = self.__get_service_account_user(client.get('id'))
+            user = self.__get_service_account_user(client['id'])
             print("here====>>>>>",user)
             print("here====>>>>>")
             user_id = user.get('id')
