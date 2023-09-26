@@ -56,6 +56,7 @@ public class WebSecurityConfig {
                         new AntPathRequestMatcher("/error/**"),
                         new AntPathRequestMatcher("/v3/api-docs/**")
                 ).permitAll()
+				.requestMatchers(new AntPathRequestMatcher("/api/customers")).hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
         // @formatter:on

@@ -17,19 +17,19 @@ services:
 #        ports:
 #            - '4200:4200'
 #        restart: on-failure
-#    identity-api:
-#        image: um-identity-api
-#        container_name: um-identity-api
-#        networks:
-#            - eoepca_network
-#        ports:
-#            - '5566:5566'
-#        environment:
-#            - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
-#            - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://keycloak-springboot-demo:7070
-#        restart: on-failure
+    identity-api:
+        image: um-identity-api
+        container_name: um-identity-api
+        networks:
+            - eoepca_network
+        ports:
+            - '5566:5566'
+        environment:
+            - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
+            - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://spring-boot-oauth2-resource-server:7071
+        restart: on-failure
     keycloak:
-        image: quay.io/keycloak/keycloak:22.0
+        image: quay.io/keycloak/keycloak:22.0.3
         container_name: keycloak
         networks:
             - eoepca_network
@@ -41,7 +41,6 @@ services:
             - KEYCLOAK_ADMIN=admin
             - KEYCLOAK_ADMIN_PASSWORD=admin
             - KC_PROXY=edge
-            - KC_HTTP_RELATIVE_PATH=/auth
             - KC_LOGLEVEL=WARN
             - PROXY_ADDRESS_FORWARDING=true
             - KC_HOSTNAME_STRICT=false
@@ -76,7 +75,7 @@ services:
             - PGDATA=/var/lib/postgresql/data/keycloak
         restart: on-failure
     gatekeeper:
-        image: quay.io/gogatekeeper/gatekeeper:2.6.0
+        image: quay.io/gogatekeeper/gatekeeper:2.7.0
         container_name: gatekeeper
         networks:
             - eoepca_network
@@ -84,19 +83,19 @@ services:
             - '3000:3000'
         restart: on-failure
         volumes:
-            - ./conf/gatekeeper/:/gatekeeper/:ro
+            - ./gatekeeper.yml:/gatekeeper/config.yml/:ro
         environment:
             - PROXY_CONFIG_FILE=/gatekeeper/config.yml
         #depends_on:
         #    keycloak:
         #        condition: service_healthy
-    web-app:
-        build: demos/open-echo
-        container_name: web-app
+    resource-server:
+        build: demos/spring-boot-oauth2-resource-server
+        container_name: spring-boot-oauth2-resource-server
         networks:
             - eoepca_network
         ports:
-            - '7070:7070'
+            - '7072:7072'
 networks:
     eoepca_network:
         driver: bridge
