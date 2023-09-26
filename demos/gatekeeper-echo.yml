@@ -1,6 +1,6 @@
 discovery-url: http://keycloak:8080/realms/master
 client-id: echo
-client-secret: w88ZKoV0Oxa4VdFOfxIRvGTm3Iwupo7o
+client-secret: NQDKaX9jBYGS8rYW0KOHhofYGI54FLPe
 encryption-key: AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j
 upstream-url: http://spring-boot-echo:7070
 secure-cookie: false

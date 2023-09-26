@@ -1,19 +1,14 @@
-client-id: gatekeeper
-client-secret: xl1pyWwzfN3OL4byGsg7f9ecKuI9y0Hd # require for access_type: confidential
-# Note the redirection-url is optional, it will default to the the URL scheme and host,
-# only in case of forward auth it will use X-Forwarded-Proto / X-Forwarded-Host, please see forward-auth section
 discovery-url: http://keycloak:8080/realms/master
+client-id: gatekeeper
+client-secret: k0ciMZSAQR0IYoDM34LtHeqnki7GCs5t
 encryption-key: AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j
-listen: :3000
-enable-metrics: true
-enable-logging: true
+upstream-url: http://spring-boot-oauth2-resource-server:7072
+secure-cookie: false
 enable-request-id: true
 enable-refresh-tokens: true
 enable-login-handler: true
-upstream-url: http://echo:7070
-secure-cookie: false
 enable-uma: true
-no-redirects: false
-skip-access-token-clientid-check: true
-skip-access-token-issuer-check: true
 enable-logout-redirect: true
+enable-metrics: true
+enable-logging: true
+listen: :3000
