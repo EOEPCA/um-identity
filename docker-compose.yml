@@ -25,7 +25,9 @@ services:
         ports:
             - '5566:5566'
         environment:
-            - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
+            - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080/
+            - IDENTITY_ADMIN_PASSWORD=admin
+            - IDENTITY_REALM=master
             - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://spring-boot-oauth2-resource-server:7071
         restart: on-failure
     keycloak:
