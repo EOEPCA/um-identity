@@ -1,16 +1,25 @@
 dependencies:
+    - name: identity-keycloak
+      condition: identity-keycloak.enabled
+      version: 1.0.0
+    - name: identity-postgres
+      condition: identity-postgres.enabled
+      version: 1.0.0
     - name: identity-api
       condition: identity-api.enabled
       version: 1.0.0
     - name: identity-manager
       condition: identity-manager.enabled
       version: 1.0.0
-    - name: identity-keycloak
-      condition: identity-keycloak.enabled
+    - name: identity-gatekeeper
+      condition: identity-gatekeeper.enabled
+      version: 1.0.0
+    - name: unprotected-service
+      condition: unprotected-service.enabled
       version: 1.0.0
     - name: identity-proxy
       condition: identity-proxy.enabled
       version: 1.0.0
-    - name: identity-postgres
-      condition: identity-postgres.enabled
+    - name: identity-nginx
+      condition: identity-nginx.enabled
       version: 1.0.0

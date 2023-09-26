@@ -6,7 +6,7 @@ from keycloak import KeycloakOpenID, KeycloakOpenIDConnection, KeycloakAdmin, Ke
 from keycloak.exceptions import raise_error_from_response, KeycloakGetError, KeycloakPostError, KeycloakPutError
 from .logger import Logger
 
-Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../conf/logging.yaml"))
+Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../logging.yml"))
 logger = logging.getLogger("IDENTITY_UTILS")
 
 class KeycloakClient:
@@ -460,7 +460,6 @@ class KeycloakClient:
     def __get_service_account_user(self, client_id: str):
         data_raw = self.keycloak_admin.connection.raw_get(
             self.server_url + 'admin/realms/' + self.realm + '/clients/' + client_id + '/service-account-user')
-        return raise_error_from_response(data_raw, KeycloakGetError)
     
     def get_policies(self,
                     resource: str = "",

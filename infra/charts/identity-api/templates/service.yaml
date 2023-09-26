@@ -4,6 +4,7 @@ metadata:
   name: {{ include "identity-api.name" . }}
   labels:
     {{- include "identity-api.labels" . | nindent 4 }}
+  namespace: {{ template "identity-api.namespace" $ }}
 spec:
   type: {{ .Values.service.type }}
   ports:

@@ -63,7 +63,7 @@ Get the secret name.
 {{- if .Values.config.existingSecret -}}
 {{- printf "%s" .Values.config.existingSecret -}}
 {{- else -}}
-{{- printf "%s" (include "oauth2-proxy.fullname" .) -}}
+{{- printf "%s" (include "oauth2-proxy.name" .) -}}
 {{- end -}}
 {{- end -}}
 

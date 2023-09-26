@@ -1,35 +1,35 @@
 version: "3.5"
 services:
-    identity-setup:
-        image: um-identity-setup
-        container_name: um-identity-setup
-        networks:
-            - eoepca_network
-        environment:
-            - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
-            - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://keycloak-springboot-demo:7070
-        restart: on-failure
-    identity-manager:
-        image: um-identity-manager
-        container_name: um-identity-manager
-        networks:
-            - eoepca_network
-        ports:
-            - '4200:4200'
-        restart: on-failure
-    identity-api:
-        image: um-identity-api
-        container_name: um-identity-api
-        networks:
-            - eoepca_network
-        ports:
-            - '5566:5566'
-        environment:
-            - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
-            - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://keycloak-springboot-demo:7070
-        restart: on-failure
+#    identity-setup:
+#        image: um-identity-setup
+#        container_name: um-identity-setup
+#        networks:
+#            - eoepca_network
+#        environment:
+#            - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
+#            - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://keycloak-springboot-demo:7070
+#        restart: on-failure
+#    identity-manager:
+#        image: um-identity-manager
+#        container_name: um-identity-manager
+#        networks:
+#            - eoepca_network
+#        ports:
+#            - '4200:4200'
+#        restart: on-failure
+#    identity-api:
+#        image: um-identity-api
+#        container_name: um-identity-api
+#        networks:
+#            - eoepca_network
+#        ports:
+#            - '5566:5566'
+#        environment:
+#            - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
+#            - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://keycloak-springboot-demo:7070
+#        restart: on-failure
     keycloak:
-        image: quay.io/keycloak/keycloak:21.0
+        image: quay.io/keycloak/keycloak:22.0
         container_name: keycloak
         networks:
             - eoepca_network
@@ -51,12 +51,14 @@ services:
             - KC_DB_USERNAME=keycloak
             - KC_DB_URL_PORT=5432
         entrypoint: /opt/keycloak/bin/kc.sh start
+        volumes:
+            - ./keycloak/health-check.sh:/opt/keycloak/health-check.sh
         restart: on-failure
         healthcheck:
-            test: [ "CMD", "curl", "-k", "-f", "http://keycloak:8080/auth/realms/master/.well-known/openid-configuration" ]
-            interval: 10s
-            timeout: 1s
-            retries: 15
+            test: "bash /opt/keycloak/health-check.sh"
+            interval: 5s
+            timeout: 180s
+            retries: 36
     postgres:
         image: postgres:12.10
         container_name: postgres
@@ -73,81 +75,28 @@ services:
             - PGPASSWORD=123
             - PGDATA=/var/lib/postgresql/data/keycloak
         restart: on-failure
-    oauth2-proxy:
-        image: quay.io/oauth2-proxy/oauth2-proxy:v7.4.0
-        container_name: oauth2-proxy
+    gatekeeper:
+        image: quay.io/gogatekeeper/gatekeeper:2.6.0
+        container_name: gatekeeper
         networks:
             - eoepca_network
         ports:
-            - '4180:4180'
-        depends_on:
-            - keycloak
-        healthcheck:
-            test: [ "CMD", "curl", "-k", "-f", "http://oauth2-proxy:4180" ]
-            interval: 10s
-            timeout: 1s
-            retries: 15
+            - '3000:3000'
         restart: on-failure
-        environment:
-            - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
-            - OAUTH2_PROXY_COOKIE_SECURE=true
-            - OAUTH2_PROXY_COOKIE_SECRET=JxJZrvNo4z1VJIiDMDGJe3q4TjmpVxMNHziW97J9UAo=
-            - OAUTH2_PROXY_UPSTREAMS=http://keycloak-springboot-demo:7070
-            - OAUTH2_PROXY_COOKIE_DOMAINS=localhost # Required so cookie can be read on all subdomains.
-            - OAUTH2_PROXY_WHITELIST_DOMAINS=localhost # Required to allow redirection back to original requested target.
-            - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
-            - OAUTH2_PROXY_SET_XAUTHREQUEST=true
-            # allow accounts to sign-in with empty emails
-            # https://github.com/oauth2-proxy/oauth2-proxy/issues/769#issuecomment-808916298
-            - OAUTH2_PROXY_EMAIL_DOMAINS=*
-            - OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL=true
-            - OAUTH2_PROXY_OIDC_EMAIL_CLAIM=sub
-            # keycloak provider
-            - OAUTH2_PROXY_CLIENT_ID=oauth2-proxy
-            - OAUTH2_PROXY_CLIENT_SECRET=secret
-            - OAUTH2_PROXY_REDIRECT_URL=http://localhost:80/oauth2/callback
-            - OAUTH2_PROXY_OIDC_ISSUER_URL=http://keycloak:8080/auth/realms/demo
-            #- OAUTH2_PROXY_REDEEM_URL=http://keycloak:8080/realms/demo/protocol/openid-connect/token
-            #- OAUTH2_PROXY_OIDC_JWKS_URL=http://keycloak:8080/realms/demo/protocol/openid-connect/certs
-            #- OAUTH2_PROXY_LOGIN_URL=http://keycloak:8080/realms/demo/protocol/openid-connect/auth
-            # skip oidc discovery to supply urls with 'localhost' instead of 'keycloak'
-            #- OAUTH2_PROXY_SKIP_OIDC_DISCOVERY=false
-            - OAUTH2_PROXY_PROVIDER=oidc
-            - OAUTH2_PROXY_PROVIDER_DISPLAY_NAME=Keycloak
-            - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON=true
-            - OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS=true
-    nginx:
-        image: nginx:1.25.1-alpine
-        container_name: nginx
-        networks:
-            - eoepca_network
-        depends_on:
-            - oauth2-proxy
-            - keycloak
         volumes:
-            - ./nginx/default.conf:/etc/nginx/templates/default.conf.template
-            #- ./nginx/letsencrypt:/etc/nginx/cert
-            - ./nginx/www:/data/www
-        ports:
-            - "80:80"
-            - "443:443"
-        restart: on-failure
-    demo-protected:
-        image: keycloak-springboot-demo
-        container_name: keycloak-springboot-demo
+            - ./conf/gatekeeper/:/gatekeeper/:ro
+        environment:
+            - PROXY_CONFIG_FILE=/gatekeeper/config.yml
+        #depends_on:
+        #    keycloak:
+        #        condition: service_healthy
+    web-app:
+        build: demos/open-echo
+        container_name: web-app
         networks:
             - eoepca_network
         ports:
-            - "7070:7070"
-        #restart: on-failure
-    demo-open:
-        image: open-springboot-demo
-        container_name: open-springboot-demo
-        networks:
-            - eoepca_network
-        ports:
-            - "7071:7071"
-        #restart: on-failure
+            - '7070:7070'
 networks:
     eoepca_network:
         driver: bridge

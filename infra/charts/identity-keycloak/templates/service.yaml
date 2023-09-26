@@ -4,6 +4,7 @@ metadata:
   name: {{ include "keycloak.name" . }}
   labels:
     {{- include "keycloak.labels" . | nindent 4 }}
+  namespace: {{ template "keycloak.namespace" $ }}
 spec:
   type: {{ .Values.service.type }}
   ports:

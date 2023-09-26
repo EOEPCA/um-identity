@@ -4,7 +4,7 @@ metadata:
   labels:
     app: {{ template "oauth2-proxy.name" . }}
 {{- include "oauth2-proxy.labels" . | indent 4 }}
-  name: {{ template "oauth2-proxy.fullname" . }}
+  name: {{ template "oauth2-proxy.name" . }}
   namespace: {{ template "oauth2-proxy.namespace" $ }}
 {{- if .Values.service.annotations }}
   annotations:

@@ -2,6 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# ---------------------------------------
+# Global variables
+# ---------------------------------------
+nameOverride: ""
+namespaceOverride: ""
+fullnameOverride: ""
+restartPolicy: Always
+
 # ---------------------------------------------
 # Variable used in configMaps template
 # ---------------------------------------------
@@ -16,6 +24,7 @@ configMap:
 # Variable used in pv and pvc template
 # ---------------------------------------------
 persistence:
+  name: eoepca-userman-pv
   type: local
   storageClassName: manual
   storage: 1Gi
@@ -128,4 +137,4 @@ serviceAccount:
 
 volumeClaim:
   name: eoepca-userman-pvc
-  create: false
+  create: true

@@ -80,6 +80,7 @@ docker-compose up -d
 Using Helm:
 
 ```shell
+kubectl apply -f infra/cert-issuer.yaml
 helm install identity infra
 ```
 

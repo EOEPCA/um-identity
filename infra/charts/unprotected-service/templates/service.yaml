@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "identity-protected.name" . }}
+  labels:
+    {{- include "identity-protected.labels" . | nindent 4 }}
+  namespace: {{ template "identity-protected.namespace" $ }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "identity-protected.selectorLabels" . | nindent 4 }}

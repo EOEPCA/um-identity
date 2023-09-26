@@ -1,0 +1,12 @@
+server:
+  port: 7072
+  max-http-header-size: 1MB
+logging:
+  level:
+    root: debug
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/master

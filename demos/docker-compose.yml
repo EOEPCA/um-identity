@@ -1,0 +1,81 @@
+version: "3.7"
+
+services:
+#  open-echo:
+#    build: spring-boot-echo
+#    container_name: spring-boot-echo
+#    ports:
+#      - '7070:7070'
+  oauth2-client:
+    build: spring-boot-oauth2-client
+    container_name: spring-boot-oauth2-client
+    restart: on-failure
+    ports:
+      - '7071:7071'
+#  oauth2-resource-server:
+#    build: spring-boot-oauth2-resource-server
+#    container_name: spring-boot-oauth2-resource-server
+#    restart: on-failure
+#    ports:
+#      - '7072:7072'
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.3
+    container_name: keycloak
+    restart: on-failure
+    ports:
+      - '8080:8080'
+    environment:
+      - KEYCLOAK_LOGLEVEL=${KEYCLOAK_LOGLEVEL}
+      - WILDFLY_LOGLEVEL=${WILDFLY_LOGLEVEL}
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+      - KC_DB_URL_HOST=${KC_DB_URL_HOST}
+      - KC_DB=${KC_DB}
+      - KC_DB_USERNAME=${KC_DB_USERNAME}
+      - KC_DB_PASSWORD=${KC_DB_PASSWORD}
+      - KC_DB_URL_PORT=${KC_DB_URL_PORT}
+      - KC_HEALTH_ENABLED=${KC_HEALTH_ENABLED}
+      - KC_FEATURES=${KC_FEATURES}
+    entrypoint: /opt/keycloak/bin/kc.sh start-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: postgres:12.10
+    container_name: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - PGUSER=keycloak
+      - POSTGRES_PASSWORD=123456
+      - PGPASSWORD=123
+      - PGDATA=/var/lib/postgresql/data/keycloak
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d keycloak -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  gatekeeper:
+    image: quay.io/gogatekeeper/gatekeeper:2.7.0-rc4
+    container_name: gatekeeper
+    ports:
+      - '3000:3000'
+    restart: on-failure
+    volumes:
+      - ./gatekeeper.yml:/gatekeeper/config.yml/:ro
+    environment:
+      - PROXY_CONFIG_FILE=/gatekeeper/config.yml
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+volumes:
+  cache:
+    driver: local

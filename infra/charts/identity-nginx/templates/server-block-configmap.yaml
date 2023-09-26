@@ -1,0 +1,11 @@
+{{- if .Values.servers.enable }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "nginx.name" . }}-server-block
+  namespace: {{ include "nginx.namespace" . | quote }}
+  labels:
+    {{- include "nginx.labels" . | nindent 4 }}
+data:
+  nginx.conf: {{ tpl .Values.servers.data $ | quote }}
+{{- end }}

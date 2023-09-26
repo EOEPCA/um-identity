@@ -4,6 +4,7 @@ metadata:
   name: {{ include "postgres.name" . }}
   labels:
     {{- include "postgres.labels" . | nindent 4 }}
+  namespace: {{ template "postgres.namespace" $ }}
 spec:
   type: {{ .Values.service.type }}
   ports:
