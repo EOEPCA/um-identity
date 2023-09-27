@@ -81,7 +81,11 @@ class KeycloakClient:
         return raise_error_from_response(data_raw, KeycloakPutError, expected_codes=[204])
 
     def delete_resource(self, resource_id):
-        return self.keycloak_uma.resource_set_delete(resource_id)
+        client_id = self.resources_client.get('id')
+        params_path = {"realm-name": self.realm, "id": client_id}
+        url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/resource/" + resource_id
+        data_raw = self.keycloak_admin.connection.raw_delete(url.format(**params_path))
+        return raise_error_from_response(data_raw, KeycloakPutError)
 
     def delete_policies(self, policies):
         if not isinstance(policies, list):
