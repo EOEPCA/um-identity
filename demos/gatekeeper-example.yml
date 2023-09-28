@@ -1,0 +1,41 @@
+client-id: id
+client-secret: secret
+discovery-url: http://keycloak:8080/realms/demo
+encryption-key: AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j
+listen: :3000
+enable-request-id: true
+enable-refresh-tokens: true
+enable-login-handler: true
+upstream-url: http://example:8081
+secure-cookie: false
+enable-uma: true
+enable-logout-redirect: true
+enable-metrics: true
+enable-logging: true
+# Adds custom headers
+#headers:
+#    myheader1: value_1
+#    myheader2: value_2
+# A collection of resource i.e. URLs that you wish to protect, these are simple gatekeeper authorization rules,
+# to get more complex authorization you can look at external authorization section in our documentation
+#resources:
+#    - uri: /oauth/*
+#      white-listed: true
+#    - uri: /admin*
+#    methods:
+#        - GET
+#    roles:
+#        - gatekeeper:admin
+#    require-any-role: true
+#  - uri: /public/*
+#      # Allow access to the resource above
+#    white-listed: true
+#  - uri: /favicon
+#      # Allow access to the resource above
+#    white-listed: true
+#  - uri: /css/*
+#      # Allow access to the resource above
+#    white-listed: true
+#  - uri: /img/*
+#      # Allow access to the resource above
+#    white-listed: true

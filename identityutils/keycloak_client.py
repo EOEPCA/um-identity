@@ -41,7 +41,7 @@ class KeycloakClient:
             verify=self.server_url.startswith('https'),
             timeout=10)
         self.keycloak_admin = KeycloakAdmin(connection=openid_connection)
-        self.__register_resources_client('resources-management')
+
 
     def set_realm(self, realm):
         if realm != 'master':
@@ -57,8 +57,9 @@ class KeycloakClient:
         for resource in resources:
             self.register_resource(resource)
 
-    def register_resource(self, resource):
-        client_id = self.resources_client.get('id')
+    def register_resource(self, resource, client_id):
+        #client_id = self.resources_client.get('id')
+        client_id = self.get_client_id(client_id)
         response = self.keycloak_admin.create_client_authz_resource(client_id=client_id, payload=resource,
                                                                     skip_exists=True)
         logger.info('Created resource:\n' + json.dumps(resource, indent=2))
@@ -553,7 +554,3 @@ class KeycloakClient:
         return raise_error_from_response(
             data_raw
         )
-    
-    
-
-    

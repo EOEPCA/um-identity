@@ -1,18 +1,19 @@
 version: "3.7"
 
 services:
-#  open-echo:
-#    build: spring-boot-echo
-#    container_name: spring-boot-echo
-#    ports:
-#      - '7070:7070'
-#    networks:
-#      - eoepca_network
+  open-echo:
+    build: spring-boot-echo
+    container_name: spring-boot-echo
+    ports:
+      - '7070:7070'
+    networks:
+      - eoepca_network
   oauth2-client:
     build: spring-boot-oauth2-client
     container_name: spring-boot-oauth2-client
     ports:
       - '7071:7071'
+    restart: on-failure
     networks:
       - eoepca_network
   oauth2-resource-server:
@@ -67,11 +68,23 @@ services:
       retries: 5
     networks:
       - eoepca_network
-  resource-server-gatekeeper:
+  echo-gatekeeper:
     image: quay.io/gogatekeeper/gatekeeper:2.7.0
-    container_name: gatekeeper
+    container_name: echo-gatekeeper
     ports:
       - '3000:3000'
+    restart: on-failure
+    volumes:
+      - ./gatekeeper-echo.yml:/gatekeeper/config.yml/:ro
+    environment:
+      - PROXY_CONFIG_FILE=/gatekeeper/config.yml
+    networks:
+      - eoepca_network
+  resource-server-gatekeeper:
+    image: quay.io/gogatekeeper/gatekeeper:2.7.0
+    container_name: resource-server-gatekeeper
+    ports:
+      - '3001:3001'
     restart: on-failure
     volumes:
       - ./gatekeeper-resource-server.yml:/gatekeeper/config.yml/:ro

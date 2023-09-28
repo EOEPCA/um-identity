@@ -17,8 +17,8 @@ spring:
             scope: openid,profile,email,offline_access
         provider:
           keycloak:
-            issuer-uri: http://keycloak:8080/realms/master
+            issuer-uri: http://keycloak:8080/realms/demo
             user-name-attribute: preferred_username
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/master
+          issuer-uri: http://keycloak:8080/realms/demo

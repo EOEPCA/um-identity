@@ -1,6 +1,6 @@
-discovery-url: http://keycloak:8080/realms/master
+discovery-url: http://keycloak:8080/realms/demo
 client-id: resource-server
-client-secret: NQDKaX9jBYGS8rYW0KOHhofYGI54FLPe
+client-secret: VAco3YkxwaDbaU3WY31eoKqKyTsQ3lcU
 encryption-key: AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j
 upstream-url: http://spring-boot-oauth2-resource-server:7072
 secure-cookie: false
@@ -11,4 +11,4 @@ enable-uma: true
 enable-logout-redirect: true
 enable-metrics: true
 enable-logging: true
-listen: :3000
+listen: :3001
