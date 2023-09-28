@@ -132,8 +132,11 @@ class KeycloakClient:
     def register_client_policy(self, policy):
         client_id = self.resources_client.get('id')
         try:
-            return self.keycloak_admin.create_client_authz_client_policy(policy, client_id)
+            data_raw = self.keycloak_admin.create_client_authz_client_policy(policy, client_id)
+            print(data_raw)
+            return data_raw 
         except KeycloakPostError as e:
+            print(e)
             if e.response_code == 409:
                 return next(item for item in self.get_client_authz_policies(policy["clients"][0]) if item["name"] == policy["name"])
             else:
