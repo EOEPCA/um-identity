@@ -139,20 +139,11 @@ class KeycloakClient:
         return raise_error_from_response(
             data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
         )
-        #try:
-        data_raw = self.keycloak_admin.create_client_authz_client_policy(policy, client_id)
-        print(data_raw)
-        return data_raw 
-        #except KeycloakPostError as e:
-        #    print(e)
-        #    if e.response_code == 409:
-        #        return next(item for item in self.get_client_authz_policies(policy["clients"][0]) if item["name"] == policy["name"])
-        #    else:
-        #        return KeycloakPostError
 
     def register_client_scope_policy(self, policy):
         policy_type = "client-scope"
         client_id = self.resources_client.get('id')
+        policy["clients"] = [client_id]
         params_path = {"realm-name": self.realm, "id": client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
