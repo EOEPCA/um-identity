@@ -477,7 +477,8 @@ class KeycloakClient:
 
         return self.keycloak_uma.policy_query(resource, name, scope, first, maximum)
     
-    def get_client_authz_policies(self, client_id):
+    def get_client_authz_policies(self):
+        client_id = self.resources_client.get('id')
         return self.keycloak_admin.get_client_authz_policies(client_id)
     
     def update_policy(self, policy_id, payload):
