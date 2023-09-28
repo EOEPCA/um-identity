@@ -59,16 +59,16 @@ class KeycloakClient:
         for resource in resources:
             self.register_resource(resource)
 
-    def register_resource(self, resource):
-        client_id = self.resources_client.get('id')
+    def register_resource(self, resource, client_id):
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         response = self.keycloak_admin.create_client_authz_resource(client_id=client_id, payload=resource,
                                                                     skip_exists=True)
         logger.info('Created resource:\n' + json.dumps(resource, indent=2))
         logger.info('Response: ' + str(response))
         return response
 
-    def update_resource(self, resource_id, resource):
-        client_id = self.resources_client.get('id')
+    def update_resource(self, resource_id, resource, client_id):
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         if "_id" not in resource:
             resource["_id"] = resource_id
         elif resource["_id"] != resource_id:
@@ -80,18 +80,18 @@ class KeycloakClient:
         data_raw = self.keycloak_admin.connection.raw_put(url.format(**params_path), data=json.dumps(resource))
         return raise_error_from_response(data_raw, KeycloakPutError, expected_codes=[204])
 
-    def delete_resource(self, resource_id):
-        client_id = self.resources_client.get('id')
+    def delete_resource(self, resource_id, client_id):
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/resource/" + resource_id
         data_raw = self.keycloak_admin.connection.raw_delete(url.format(**params_path))
         return raise_error_from_response(data_raw, KeycloakPutError)
 
-    def delete_policies(self, policies):
+    def delete_policies(self, policies, client_id):
         if not isinstance(policies, list):
             policies = [policies]
             logger.info("Deleting policies: " + str(policies))
-        client_id = self.resources_client.get('id')
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         delete_policies = list(filter(lambda p: p.get('name') in policies, self.keycloak_admin.get_client_authz_policies(client_id)))
         logger.info("Policies to delete: " + str(delete_policies))
         if not delete_policies:
@@ -100,8 +100,8 @@ class KeycloakClient:
         for d in delete_policies:
             self.keycloak_admin.delete_client_authz_policy(client_id=client_id, policy_id=d.get('id'))
 
-    def __register_policy(self, policy, register_f):
-        client_id = self.resources_client.get('id')
+    def __register_policy(self, policy, register_f, client_id):
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         logger.info("Creating policy:\n" + json.dumps(policy, indent=2))
         response = register_f(client_id=client_id, payload=policy, skip_exists = True)
         logger.info("Response: " + str(response))
@@ -121,9 +121,9 @@ class KeycloakClient:
             policy = [policy]
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("aggregate", client_id, payload, skip_exists))
 
-    def register_client_policy(self, policy):
+    def register_client_policy(self, policy, client_id):
         policy_type = "client"
-        client_id = self.resources_client.get('id')
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         policy["clients"] = [client_id]
         params_path = {"realm-name": self.realm, "id": client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
@@ -132,9 +132,9 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
         )
 
-    def register_client_scope_policy(self, policy):
+    def register_client_scope_policy(self, policy, client_id):
         policy_type = "client-scope"
-        client_id = self.resources_client.get('id')
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         policy["owner"] = client_id
         params_path = {"realm-name": self.realm, "id": client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
@@ -143,28 +143,17 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
         )
 
-    def register_group_policy(self, policy):
+    def register_group_policy(self, policy, client_id):
         # groups: [{"id": str, "path": str}]
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("group", client_id, payload, skip_exists))
 
     def register_regex_policy(self, policy):   
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("regex", client_id, payload, skip_exists))
 
-    def register_role_policy(self, name, roles):
+    def register_role_policy(self, policy):
         if not isinstance(roles, list):
             roles = [roles]
-        policy = {
-            "type": "role",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "name": name,
-            "roles": [
-                {
-                    "id": role,
-                    "required": False
-                } for role in roles
-            ]
-        }
+        
         return self.__register_policy(policy, self.keycloak_admin.create_client_authz_role_based_policy)
 
     def register_time_policy(self, name, time):
@@ -204,10 +193,10 @@ class KeycloakClient:
         }
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("user", client_id, payload, skip_exists))
 
-    def assign_resources_permissions(self, permissions):
+    def assign_resources_permissions(self, permissions, client_id):
         if not isinstance(permissions, list):
             permissions = [permissions]
-        client_id = self.resources_client.get('id')
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         for permission in permissions:
             response = self.keycloak_admin.create_client_authz_resource_based_permission(client_id=client_id,
                                                                                          payload=permission,
@@ -453,12 +442,12 @@ class KeycloakClient:
 
         return self.keycloak_uma.policy_query(resource, name, scope, first, maximum)
     
-    def get_client_authz_policies(self):
-        client_id = self.resources_client.get('id')
+    def get_client_authz_policies(self, client_id):
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         return self.keycloak_admin.get_client_authz_policies(client_id)
     
-    def update_policy(self, policy_id, payload):
-        client_id = self.resources_client.get('id')
+    def update_policy(self, policy_id, payload, client_id):
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": client_id}
         policy_type = payload["type"]
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type +"/"+policy_id
@@ -467,8 +456,8 @@ class KeycloakClient:
             data_raw, KeycloakPostError
         )
     
-    def delete_policy(self, policy_id):
-        client_id = self.resources_client.get('id')
+    def delete_policy(self, policy_id, client_id):
+        _client_id = self.keycloak_admin.get_client_id(client_id)
         return self.keycloak_admin.delete_client_authz_policy(client_id, policy_id)
     
     def get_client_authz_permissions(self, client_id):
