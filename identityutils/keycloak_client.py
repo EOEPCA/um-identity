@@ -143,7 +143,7 @@ class KeycloakClient:
     def register_client_scope_policy(self, policy):
         policy_type = "client-scope"
         client_id = self.resources_client.get('id')
-        policy["clients"] = [client_id]
+        policy["owner"] = [client_id]
         params_path = {"realm-name": self.realm, "id": client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
