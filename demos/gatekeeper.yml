@@ -27,7 +27,7 @@ headers:
     #enable-forwarding: true
     #forwarding-username: admin
     #forwarding-password: admin
-    # a collection of resource i.e. URLs that you wish to protect, this are simple gatekeeper authorization rules,
+    # a collection of resource i.e. URLs that you wish to protect, these are simple gatekeeper authorization rules,
     # to get more complex authorization you can look at external authorization section in our documentation
     #resources:
     #    - uri: /oauth/*
@@ -49,4 +49,4 @@ headers:
     #    white-listed: true
     #  - uri: /img/*
     #      # Allow access to the resource above
-#    white-listed: true
+    #    white-listed: true

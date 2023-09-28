@@ -11,4 +11,4 @@ enable-uma: true
 enable-logout-redirect: true
 enable-metrics: true
 enable-logging: true
-listen: :3001
+listen: :3000

@@ -11,7 +11,7 @@ spring:
         registration:
           keycloak:
             provider: keycloak
-            client-id: spring-boot-demo
+            client-id: resource-server
             client-secret: NQDKaX9jBYGS8rYW0KOHhofYGI54FLPe
             authorization-grant-type: authorization_code
             scope: openid,profile,email,offline_access

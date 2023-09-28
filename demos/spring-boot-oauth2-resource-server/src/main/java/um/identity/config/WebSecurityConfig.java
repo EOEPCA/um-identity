@@ -42,7 +42,7 @@ public class WebSecurityConfig {
 		http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		// Disable CSRF because of state-less session-management
 		http.csrf(csrf -> csrf.disable());
-		// Return 401 (unauthorized) instead of 302 (redirect to login) when
+		// Return 401 (unauthorized) instead of 302 (redirect to log in) when
 		// authorization is missing or invalid
 		http.exceptionHandling(eh -> eh.authenticationEntryPoint((request, response, authException) -> {
 			response.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer realm=\"Restricted Content\"");

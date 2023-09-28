@@ -6,16 +6,22 @@ services:
 #    container_name: spring-boot-echo
 #    ports:
 #      - '7070:7070'
-#  oauth2-client:
-#    build: spring-boot-oauth2-client
-#    container_name: spring-boot-oauth2-client
-#    ports:
-#      - '7071:7071'
+#    networks:
+#      - eoepca_network
+  oauth2-client:
+    build: spring-boot-oauth2-client
+    container_name: spring-boot-oauth2-client
+    ports:
+      - '7071:7071'
+    networks:
+      - eoepca_network
   oauth2-resource-server:
     build: spring-boot-oauth2-resource-server
     container_name: spring-boot-oauth2-resource-server
     ports:
       - '7072:7072'
+    networks:
+      - eoepca_network
   keycloak:
     image: quay.io/keycloak/keycloak:22.0.3
     container_name: keycloak
@@ -38,6 +44,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - eoepca_network
   postgres:
     image: postgres:12.10
     container_name: postgres
@@ -57,6 +65,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - eoepca_network
   resource-server-gatekeeper:
     image: quay.io/gogatekeeper/gatekeeper:2.7.0
     container_name: gatekeeper
@@ -67,6 +77,8 @@ services:
       - ./gatekeeper-resource-server.yml:/gatekeeper/config.yml/:ro
     environment:
       - PROXY_CONFIG_FILE=/gatekeeper/config.yml
+    networks:
+      - eoepca_network
   nginx:
     image: nginx:alpine
     container_name: nginx
@@ -74,6 +86,14 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "80:80"
+    networks:
+      - eoepca_network
+
 volumes:
   cache:
     driver: local
+
+networks:
+  eoepca_network:
+    driver: bridge
+    name: eoepca_network
