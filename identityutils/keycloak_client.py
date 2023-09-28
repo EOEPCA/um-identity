@@ -60,6 +60,7 @@ class KeycloakClient:
             self.register_resource(resource)
 
     def register_resource(self, resource, client_id):
+        print(client_id)
         _client_id = self.keycloak_admin.get_client_id(client_id)
         aaa = self.resources_client.get('id')
         print(_client_id)
