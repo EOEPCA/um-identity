@@ -115,18 +115,10 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201], skip_exists=skip_exists
         )
 
-    def register_aggregated_policy(self, name, policies, strategy):
+    def register_aggregated_policy(self, policy):
         # strategy: UNANIMOUS | AFFIRMATIVE | CONSENSUS
-        if not isinstance(policies, list):
-            policies = [policies]
-        policy = {
-            "type": "aggregate",
-            "logic": "POSITIVE",
-            "decisionStrategy": strategy,
-            "name": name,
-            "policies": policies,
-            "description": ""
-        }
+        if not isinstance(policy, list):
+            policy = [policy]
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("aggregate", client_id, payload, skip_exists))
 
     def register_client_policy(self, policy):
@@ -151,17 +143,8 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
         )
 
-    def register_group_policy(self, name, groups, groups_claim):
+    def register_group_policy(self, policy):
         # groups: [{"id": str, "path": str}]
-        policy = {
-            "type": "group",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "name": name,
-            "groups": groups,
-            "groupsClaim": groups_claim,
-            "description": ""
-        }
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("group", client_id, payload, skip_exists))
 
     def register_regex_policy(self, name, regex, target_claim):
