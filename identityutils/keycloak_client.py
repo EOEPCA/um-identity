@@ -147,16 +147,7 @@ class KeycloakClient:
         # groups: [{"id": str, "path": str}]
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("group", client_id, payload, skip_exists))
 
-    def register_regex_policy(self, name, regex, target_claim):
-        policy = {
-            "type": "regex",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "name": name,
-            "pattern": regex,
-            "targetClaim": target_claim,
-            "description": ""
-        }
+    def register_regex_policy(self, policy):   
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("regex", client_id, payload, skip_exists))
 
     def register_role_policy(self, name, roles):
