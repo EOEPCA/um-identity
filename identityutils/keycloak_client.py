@@ -61,7 +61,7 @@ class KeycloakClient:
 
     def register_resource(self, resource, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        response = self.keycloak_admin.create_client_authz_resource(client_id=client_id, payload=resource,
+        response = self.keycloak_admin.create_client_authz_resource(client_id=_client_id, payload=resource,
                                                                     skip_exists=True)
         logger.info('Created resource:\n' + json.dumps(resource, indent=2))
         logger.info('Response: ' + str(response))
@@ -143,7 +143,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
         )
 
-    def register_group_policy(self, policy, client_id):
+    def register_group_policy(self, policy):
         # groups: [{"id": str, "path": str}]
         return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("group", client_id, payload, skip_exists))
 
