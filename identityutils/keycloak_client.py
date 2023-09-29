@@ -76,14 +76,14 @@ class KeycloakClient:
             raise KeycloakGetError(
                 error_message="Resource ids on path and body don't matc", response_code=400, response_body=bytearray()
             )
-        params_path = {"realm-name": self.realm, "id": client_id}
+        params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/resource/" + resource_id
         data_raw = self.keycloak_admin.connection.raw_put(url.format(**params_path), data=json.dumps(resource))
         return raise_error_from_response(data_raw, KeycloakPutError, expected_codes=[204])
 
     def delete_resource(self, resource_id, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        params_path = {"realm-name": self.realm, "id": client_id}
+        params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/resource/" + resource_id
         data_raw = self.keycloak_admin.connection.raw_delete(url.format(**params_path))
         return raise_error_from_response(data_raw, KeycloakPutError)
@@ -93,18 +93,18 @@ class KeycloakClient:
             policies = [policies]
             logger.info("Deleting policies: " + str(policies))
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        delete_policies = list(filter(lambda p: p.get('name') in policies, self.keycloak_admin.get_client_authz_policies(client_id)))
+        delete_policies = list(filter(lambda p: p.get('name') in policies, self.keycloak_admin.get_client_authz_policies(_client_id)))
         logger.info("Policies to delete: " + str(delete_policies))
         if not delete_policies:
             logger.info("Policies not found: " + str(policies))
             return
         for d in delete_policies:
-            self.keycloak_admin.delete_client_authz_policy(client_id=client_id, policy_id=d.get('id'))
+            self.keycloak_admin.delete_client_authz_policy(client_id=_client_id, policy_id=d.get('id'))
 
     def __register_policy(self, policy, register_f, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         logger.info("Creating policy:\n" + json.dumps(policy, indent=2))
-        response = register_f(client_id=client_id, payload=policy, skip_exists = True)
+        response = register_f(client_id=_client_id, payload=policy, skip_exists = True)
         logger.info("Response: " + str(response))
         return response
 
@@ -126,7 +126,7 @@ class KeycloakClient:
         policy_type = "client"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         policy["clients"] = [client_id]
-        params_path = {"realm-name": self.realm, "id": client_id}
+        params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
@@ -137,7 +137,7 @@ class KeycloakClient:
         policy_type = "client-scope"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         policy["owner"] = client_id
-        params_path = {"realm-name": self.realm, "id": client_id}
+        params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
@@ -199,7 +199,7 @@ class KeycloakClient:
             permissions = [permissions]
         _client_id = self.keycloak_admin.get_client_id(client_id)
         for permission in permissions:
-            response = self.keycloak_admin.create_client_authz_resource_based_permission(client_id=client_id,
+            response = self.keycloak_admin.create_client_authz_resource_based_permission(client_id=_client_id,
                                                                                          payload=permission,
                                                                                          skip_exists=True)
             logger.info("Creating resource permission: " + json.dumps(permission, indent=2))
@@ -242,7 +242,8 @@ class KeycloakClient:
         return raise_error_from_response(data_raw, KeycloakPostError)
 
     def get_resources(self, client_id):
-        return self.keycloak_admin.get_client_authz_resources(client_id)
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        return self.keycloak_admin.get_client_authz_resources(_client_id)
 
     def __query_resources(self, name: str = "",
                           exact_name: bool = False,
@@ -432,11 +433,11 @@ class KeycloakClient:
     
     def get_client_authz_policies(self, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        return self.keycloak_admin.get_client_authz_policies(client_id)
+        return self.keycloak_admin.get_client_authz_policies(_client_id)
     
     def update_policy(self, policy_id, payload, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        params_path = {"realm-name": self.realm, "id": client_id}
+        params_path = {"realm-name": self.realm, "id": _client_id}
         policy_type = payload["type"]
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type +"/"+policy_id
         data_raw = self.keycloak_admin.raw_put(url.format(**params_path), data=json.dumps(payload))
@@ -446,7 +447,7 @@ class KeycloakClient:
     
     def delete_policy(self, policy_id, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        return self.keycloak_admin.delete_client_authz_policy(client_id, policy_id)
+        return self.keycloak_admin.delete_client_authz_policy(_client_id, policy_id)
     
     def get_client_authz_permissions(self, client_id):
         return self.keycloak_admin.get_client_authz_permissions(client_id)
