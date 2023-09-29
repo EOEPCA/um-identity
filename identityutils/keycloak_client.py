@@ -64,7 +64,7 @@ class KeycloakClient:
         client_id = self.resources_client.get("id")
 
         resource['owner']= {'id': client_id} 
-        response = self.keycloak_admin.create_client_authz_resource(client_id=client_id, payload=resource,
+        response = self.keycloak_admin.create_client_authz_resource(client_id=_client_id, payload=resource,
                                                                     skip_exists=True)
         logger.info('Created resource:\n' + json.dumps(resource, indent=2))
         logger.info('Response: ' + str(response))
