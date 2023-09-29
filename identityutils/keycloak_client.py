@@ -433,7 +433,7 @@ class KeycloakClient:
     
     def get_client_authz_policies(self, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        return self.keycloak_admin.get_client_authz_policies(client_id=_client_id)
+        return self.keycloak_admin.get_client_authz_policies()
     
     def update_policy(self, policy_id, payload, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
