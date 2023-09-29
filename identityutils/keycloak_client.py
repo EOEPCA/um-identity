@@ -181,7 +181,7 @@ class KeycloakClient:
         )
         
 
-    def register_time_policy(self, name, time):
+    def register_time_policy(self,policy, client_id):
         # time can be one of:
         # "notAfter":"1970-01-01 00:00:00"
         # "notBefore":"1970-01-01 00:00:00"
@@ -195,15 +195,14 @@ class KeycloakClient:
         # "hourEnd":<hour>
         # "minute":<minute>
         # "minuteEnd":<minute>
-        policy = {
-            "type": "time",
-            "logic": "POSITIVE",
-            "decisionStrategy": "UNANIMOUS",
-            "name": name,
-            "description": ""
-        }
-        policy.update(time)
-        return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("time", client_id, payload, skip_exists))
+        policy_type = "time"
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
+        url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
+        data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
+        return raise_error_from_response(
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
+        )
 
     def register_user_policy(self, name, users):
         if not isinstance(users, list):
