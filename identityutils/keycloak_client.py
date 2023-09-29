@@ -472,13 +472,16 @@ class KeycloakClient:
         return self.keycloak_admin.delete_client_authz_policy(_client_id, policy_id)
     
     def get_client_authz_permissions(self, client_id):
-        return self.keycloak_admin.get_client_authz_permissions(client_id)
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        return self.keycloak_admin.get_client_authz_permissions(_client_id)
 
     def get_client_management_permissions(self, client_id):
-        return self.keycloak_admin.get_client_management_permissions(client_id)
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        return self.keycloak_admin.get_client_management_permissions(_client_id)
     
     def get_client_resource_permissions(self, client_id):
-        params_path = {"realm-name": self.realm, "id": client_id}
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/permission/resource"
         data_raw = self.keycloak_admin.raw_get(url.format(**params_path))
         return raise_error_from_response(
@@ -492,13 +495,16 @@ class KeycloakClient:
     #    return self.keycloak_admin.create_client_authz_scope_based_permission(client_id, payload, skip_exists=True)
     
     def create_client_authz_resource_based_permission(self, client_id, payload):
-        return self.keycloak_admin.create_client_authz_resource_based_permission(client_id, payload, skip_exists=True)
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        return self.keycloak_admin.create_client_authz_resource_based_permission(_client_id, payload, skip_exists=True)
 
     def update_client_management_permissions(self, client_id, payload):
-        return self.keycloak_admin.update_client_management_permissions(payload, client_id)
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        return self.keycloak_admin.update_client_management_permissions(payload, _client_id)
     
     def update_client_authz_resource_permission(self, client_id, payload, permission_id):
-        params_path = {"realm-name": self.realm, "id": client_id}
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/permission/resource/" + permission_id
         data_raw = self.keycloak_admin.raw_put(url.format(**params_path), data = json.dumps(payload))
         return raise_error_from_response(
@@ -509,7 +515,8 @@ class KeycloakClient:
     #    return self.keycloak_admin.update_client_authz_scope_permission(payload, client_id, scope_id)
     
     def get_client_scopes(self, client_id, name):
-        params_path = {"realm-name": self.realm, "id": client_id}
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/scope/search?name=" + name
         data_raw = self.keycloak_admin.raw_get(url.format(**params_path))
         return raise_error_from_response(
@@ -517,7 +524,8 @@ class KeycloakClient:
         )
     
     def create_client_scopes(self, client_id, payload):
-        params_path = {"realm-name": self.realm, "id": client_id}
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/scope"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data = json.dumps(payload))
         return raise_error_from_response(
@@ -525,7 +533,8 @@ class KeycloakClient:
         )
     
     def update_client_scopes(self, client_id, scope_id, payload):
-        params_path = {"realm-name": self.realm, "id": client_id}
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/scope/" + scope_id
         data_raw = self.keycloak_admin.raw_put(url.format(**params_path), data = json.dumps(payload))
         return raise_error_from_response(
@@ -533,7 +542,8 @@ class KeycloakClient:
         )
     
     def delete_client_scopes(self, client_id, scope_id):
-        params_path = {"realm-name": self.realm, "id": client_id}
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/scope/" + scope_id
         data_raw = self.keycloak_admin.raw_delete(url.format(**params_path))
         return raise_error_from_response(
