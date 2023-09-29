@@ -116,12 +116,16 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201], skip_exists=skip_exists
         )
 
-    def register_aggregated_policy(self, policy):
-        # strategy: UNANIMOUS | AFFIRMATIVE | CONSENSUS
-        if not isinstance(policy, list):
-            policy = [policy]
-        return self.__register_policy(policy, lambda client_id, payload, skip_exists: self.__register_policy_send_post("aggregate", client_id, payload, skip_exists))
-
+    def register_aggregated_policy(self, policy, client_id):
+        policy_type = "aggregate"
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
+        url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
+        data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
+        return raise_error_from_response(
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
+        )
+    
     def register_client_policy(self, policy, client_id):
         policy_type = "client"
         _client_id = self.keycloak_admin.get_client_id(client_id)
