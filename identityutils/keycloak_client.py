@@ -60,11 +60,12 @@ class KeycloakClient:
             self.register_resource(resource)
 
     def register_resource(self, resource, client_id):
-        print(client_id)
+        print("here=====>>>>>>>>")
+        print("here=====>>>>>>>>",client_id)
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        print(_client_id)
+        print("here=====>>>>>>>>",_client_id)
         client_id = self.resources_client.get("id")
-        print(client_id)
+        print("here=====>>>>>>>>",client_id)
         response = self.keycloak_admin.create_client_authz_resource(client_id=client_id, payload=resource,
                                                                     skip_exists=True)
         logger.info('Created resource:\n' + json.dumps(resource, indent=2))
