@@ -241,21 +241,8 @@ class KeycloakClient:
         data_raw = connection.raw_post(self.keycloak_uma.uma_well_known["token_endpoint"], data=payload)
         return raise_error_from_response(data_raw, KeycloakPostError)
 
-    def get_resources(self,
-                      name: str = "",
-                      exact_name: bool = False,
-                      uri: str = "",
-                      owner: str = "",
-                      resource_type: str = "",
-                      scope: str = "",
-                      first: int = 0,
-                      maximum: int = -1) -> list[str]:
-        if not name and not uri and not owner and not resource_type and not scope and first == 0 and maximum == -1:
-            return list(self.keycloak_uma.resource_set_list())
-
-        return self.__query_resources(name=name, exact_name=exact_name, uri=uri, owner=owner,
-                                      resource_type=resource_type, scope=scope, first=first,
-                                      maximum=maximum)
+    def get_resources(self, client_id):
+        return self.keycloak_admin.get_client_authz_resources(client_id)
 
     def __query_resources(self, name: str = "",
                           exact_name: bool = False,
