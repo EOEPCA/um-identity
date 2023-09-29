@@ -168,11 +168,18 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
         )
 
-    def register_role_policy(self, policy):
-        if not isinstance(roles, list):
-            roles = [roles]
+    def register_role_policy(self, policy, client_id):
+        policy_type = "role"
+        if not isinstance(policy["roles"], list):
+            policy["roles"] = [policy["roles"]]
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
+        url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
+        data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
+        return raise_error_from_response(
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
+        )
         
-        return self.__register_policy(policy, self.keycloak_admin.create_client_authz_role_based_policy)
 
     def register_time_policy(self, name, time):
         # time can be one of:
