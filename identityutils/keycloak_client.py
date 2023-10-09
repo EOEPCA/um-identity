@@ -43,7 +43,7 @@ class KeycloakClient:
             verify=self.server_url.startswith('https'),
             timeout=10)
         self.keycloak_admin = KeycloakAdmin(connection=openid_connection)
-        self.__register_resources_client('resources-management')
+
 
     def set_realm(self, realm):
         if realm != 'master':
@@ -549,7 +549,3 @@ class KeycloakClient:
         return raise_error_from_response(
             data_raw
         )
-    
-    
-
-    

@@ -9,4 +9,4 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://keycloak:8080/realms/master
+          issuer-uri: http://keycloak:8080/realms/demo

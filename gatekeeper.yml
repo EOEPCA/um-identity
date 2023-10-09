@@ -1,4 +1,4 @@
-discovery-url: http://keycloak:8080/realms/master
+discovery-url: http://keycloak:8080/realms/demo
 client-id: gatekeeper
 client-secret: k0ciMZSAQR0IYoDM34LtHeqnki7GCs5t
 encryption-key: AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j

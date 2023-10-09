@@ -23,6 +23,17 @@ To start the application run:
 docker compose up -d --build
 ```
 
+### Configuration
+
+Import realm.json into Keycloak.
+
+### Nginx
+
+Nginx is configured to accept requests and redirect to Gatekeeper which redirects to the backend application once user is authenticated.  
+Nginx is running at port 80.  
+[localhost/api/customers](http://localhost/api/customers)
+
+
 ### Documentation
 
 - https://spring.io/guides/gs/securing-web/
