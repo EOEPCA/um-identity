@@ -40,7 +40,7 @@ services:
             - KC_DB_URL_PORT=5432
         command: "start"
     postgres:
-        image: postgres:12.10
+        image: postgres:16.0
         container_name: postgres
         networks:
             - eoepca_network

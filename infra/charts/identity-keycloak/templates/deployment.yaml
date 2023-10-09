@@ -40,6 +40,10 @@ spec:
             {{- tpl . $ | nindent 12 }}
             {{- end }}
           envFrom:
+            - configMapRef:
+                name: {{ include "keycloak.name" . }}-config
+            - secretRef:
+                name: {{ include "keycloak.name" . }}-secret
             {{- with .Values.deployment.extraEnvFrom }}
             {{- tpl . $ | nindent 12 }}
             {{- end }}

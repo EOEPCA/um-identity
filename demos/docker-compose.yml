@@ -48,7 +48,7 @@ services:
     networks:
       - eoepca_network
   postgres:
-    image: postgres:12.10
+    image: postgres:16.0
     container_name: postgres
     ports:
       - '5432:5432'
@@ -69,7 +69,7 @@ services:
     networks:
       - eoepca_network
   echo-gatekeeper:
-    image: quay.io/gogatekeeper/gatekeeper:2.7.0
+    image: quay.io/gogatekeeper/gatekeeper:2.8.0
     container_name: echo-gatekeeper
     ports:
       - '3000:3000'
@@ -81,7 +81,7 @@ services:
     networks:
       - eoepca_network
   resource-server-gatekeeper:
-    image: quay.io/gogatekeeper/gatekeeper:2.7.0
+    image: quay.io/gogatekeeper/gatekeeper:2.8.0
     container_name: resource-server-gatekeeper
     ports:
       - '3001:3001'
@@ -96,7 +96,8 @@ services:
     image: nginx:alpine
     container_name: nginx
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx_proxy.conf:/etc/nginx/conf.d/default.conf
+      #- ./nginx_auth_req.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "80:80"
     networks:

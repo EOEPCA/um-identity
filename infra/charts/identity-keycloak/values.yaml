@@ -40,34 +40,8 @@ deployment:
   image:
     repository: quay.io/keycloak/keycloak
     pullPolicy: IfNotPresent
-
   ## Overrides the default args for the Keycloak container
-  args: ["start", "--auto-build"]
-
-  # Additional environment variables for Keycloak
-  extraEnv: |
-    - name: KEYCLOAK_LOGLEVEL
-      value: DEBUG
-    - name: WILDFLY_LOGLEVEL
-      value: DEBUG
-    - name: KEYCLOAK_ADMIN
-      value: "admin"
-    - name: KEYCLOAK_ADMIN_PASSWORD
-      value: "admin"
-    - name: KC_PROXY
-      value: "edge"
-    - name: "KC_HOSTNAME_STRICT"
-      value: "false"
-    - name: "KC_DB"
-      value: "postgres"
-    - name: "KC_DB_URL_HOST"
-      value: "identity-postgres"
-    - name: "KC_DB_PASSWORD"
-      value: "123456"
-    - name: "KC_DB_USERNAME"
-      value: "keycloak"
-    - name: "KC_DB_URL_PORT"
-      value: "5432"
+  args: ["start-dev"]
   # Additional environment variables for Keycloak mapped from Secret or ConfigMap
   extraEnvFrom: ""
   # Define which port will be used in the containers
@@ -109,6 +83,22 @@ deployment:
   affinity: {}
   # Node taints to tolerate
   tolerations: []
+
+configMap:
+  keycloakLogLevel: DEBUG
+  wildflyLoglevel: DEBUG
+  keycloakAdmin: admin
+  kcHostnameStrict: false
+  kcProxy: edge
+  kcDb: postgres
+  kcDbUrl: jdbc:postgresql://identity-postgres/keycloak
+  kcDbUsername: keycloak
+  kcDbUrlHost: postgres
+  kcDbUrlPort: 5432
+  kcFeatures: account3,admin-fine-grained-authz,declarative-user-profile,recovery-codes,scripts
+secrets:
+  keycloakAdminPassword: admin
+  kcDbPassword: 123456
 
 # ---------------------------------------
 # Variable group used in ingress template

@@ -7,10 +7,10 @@ metadata:
     {{- include "identity-gatekeeper.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.deployment.replicaCount }}
   {{- end }}
   strategy:
-    {{- toYaml .Values.strategy | nindent 4 }}
+    {{- toYaml .Values.deployment.strategy | nindent 4 }}
   selector:
     matchLabels:
         {{- include "identity-gatekeeper.selectorLabels" . | nindent 6 }}
@@ -23,40 +23,40 @@ spec:
         prometheus.io/port: {{ $adminPort | quote }}
         prometheus.io/scrape: "true"
         {{- end }}
-        {{- with .Values.podAnnotations }}
+        {{- with .Values.deployment.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
         {{- include "identity-gatekeeper.selectorLabels" . | nindent 8 }}
-        {{- range $key, $value := .Values.podLabels }}
+        {{- range $key, $value := .Values.deployment.podLabels }}
         {{ $key }}: {{ $value | quote }}
         {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.deployment.image.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
+      automountServiceAccountToken: {{ .Values.deployment.automountServiceAccountToken }}
       serviceAccountName: {{ include "identity-gatekeeper.serviceAccountName" . }}
-      {{- if .Values.podSecurityContext.enabled }}
+      {{- if .Values.deployment.podSecurityContext.enabled }}
       securityContext:
-        {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+        {{- omit .Values.deployment.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          {{- if .Values.containerSecurityContext.enabled }}
+          {{- if .Values.deployment.containerSecurityContext.enabled }}
           securityContext:
-            {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+            {{- omit .Values.deployment.containerSecurityContext "enabled" | toYaml | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
           args:
             - --config
             - /etc/gatekeeper/config.yaml
-            {{- with .Values.extraArgs }}
+            {{- with .Values.deployment.extraArgs }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          {{- with .Values.extraEnvVars }}
+          {{- with .Values.deployment.extraEnvVars }}
           env:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -67,44 +67,44 @@ spec:
             - name: admin
               containerPort: {{ $adminPort }}
               protocol: TCP
-          {{- if .Values.livenessProbe.enabled }}
+          {{- if .Values.deployment.livenessProbe.enabled }}
           livenessProbe:
-            {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 12 }}
+            {{- omit .Values.deployment.livenessProbe "enabled" | toYaml | nindent 12 }}
           {{- end }}
-          {{- if .Values.readinessProbe.enabled }}
+          {{- if .Values.deployment.readinessProbe.enabled }}
           readinessProbe:
-            {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 12 }}
+            {{- omit .Values.deployment.readinessProbe "enabled" | toYaml | nindent 12 }}
           {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.deployment.resources | nindent 12 }}
           volumeMounts:
             - mountPath: /etc/gatekeeper
               name: config
-            {{- with .Values.extraVolumeMounts }}
+            {{- with .Values.deployment.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
       volumes:
         - secret:
             secretName: {{ include "identity-gatekeeper.fullname" . }}
           name: config
-        {{- with .Values.extraVolumes }}
+        {{- with .Values.deployment.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- with .Values.priorityClassName }}
+      {{- with .Values.deployment.priorityClassName }}
       priorityClassName: {{ . | quote }}
       {{- end }}
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.deployment.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.deployment.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.deployment.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.hostAliases }}
-      hostAliases: {{ toYaml .Values.hostAliases | nindent 8 }}
+      {{- if .Values.deployment.hostAliases }}
+      hostAliases: {{ toYaml .Values.deployment.hostAliases | nindent 8 }}
       {{- end }}

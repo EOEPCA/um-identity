@@ -1,0 +1,70 @@
+@startuml
+title Nginx auth_request
+
+hide stereotype
+
+skinparam participant<<client>> {
+  BackgroundColor LightGreen
+  BorderColor Green
+}
+skinparam participant<<nginx>> {
+  BackgroundColor Yellow
+  BorderColor DarkOrange
+}
+skinparam participant<<pep>> {
+  BackgroundColor Pink
+  BorderColor Red
+}
+skinparam participant<<ades>> {
+  BackgroundColor Cyan
+  BorderColor Blue
+}
+
+participant "Client" as client<<client>> order 10
+participant "Nginx" as nginx<<nginx>> order 20
+participant "PEP" as pep<<pep>> order 30
+participant "ADES" as ades<<ades>> order 40
+
+autonumber
+client -> client : authenticate user : X-User-Id
+client -> nginx : request resource\n(X-User-Id, Bearer[RPT or <blank>])
+note right
+Client provides the user id-token in the header X-User-Id.
+The Bearer header carries the RPT, or is excluded for
+a 'naive' request.
+end note
+nginx -> pep : auth_request\n(Bearer, X-Original-Uri, X-Original-Method)
+pep -> pep : makes checks
+
+alt AUTHORIZED
+  nginx <-- pep : decision : 200
+  nginx -> ades : request resource (X-User-Id, Bearer)
+  note left
+  Nginx proxies the request, including the
+  client-provided headers.
+  The **Bearer** header (RPT) was used by the PEP
+  to inform its decision, and is not so useful
+  to the ADES.
+  The **X-User-Id** header is used by the ADES for
+  any calls it makes to other protected components
+  using the UMA flow
+  end note
+  client <-- ades : requested resource
+end
+
+alt UNAUTHORIZED
+  nginx <-- pep : decision : 401, Www-Authenticate=ticket
+  client <-- nginx : unauthorized : 401, Www-Authenticate=ticket
+end
+
+alt FORBIDDEN
+  nginx <-- pep : decision : 403
+  client <-- nginx : forbidden : 403
+end
+
+alt BAD PEP
+  nginx <-- pep : decision : not 200-299/401/403
+  client <-- nginx : internal server error : 500
+end
+
+@enduml

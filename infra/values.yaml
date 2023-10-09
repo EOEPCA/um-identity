@@ -11,13 +11,13 @@ identity-postgres:
       repository: postgres
       pullPolicy: IfNotPresent
 identity-api:
-  enabled: true
+  enabled: false
   deployment:
     image:
       repository: ghcr.io/eoepca/um-identity-api
       pullPolicy: Always
 identity-manager:
-  enabled: true
+  enabled: false
   deployment:
     image:
       repository: ghcr.io/eoepca/um-identity-manager
@@ -28,13 +28,13 @@ identity-gatekeeper:
     image:
       repository: quay.io/gogatekeeper/gatekeeper
       pullPolicy: IfNotPresent
-unprotected-service:
-  enabled: true
+identity-spring-boot-echo:
+  enabled: false
   deployment:
     image:
-      repository: ghcr.io/eoepca/um-unprotected-service
+      repository: ghcr.io/eoepca/um-spring-boot-echo
       pullPolicy: IfNotPresent
-identity-proxy:
+identity-oauth2-proxy:
   enabled: false
   deployment:
     image:

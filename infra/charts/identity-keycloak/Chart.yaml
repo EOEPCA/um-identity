@@ -2,4 +2,4 @@ apiVersion: v2
 name: identity-keycloak
 description: A Keycloak helm chart
 version: 1.0.0
-appVersion: "21.0"
+appVersion: "22.0.3"
