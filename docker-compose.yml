@@ -101,4 +101,4 @@ services:
 networks:
     eoepca_network:
         driver: bridge
-        name: eoepcanetwork
+        name: eoepca_network
