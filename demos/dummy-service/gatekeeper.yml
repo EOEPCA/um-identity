@@ -2,7 +2,7 @@ discovery-url: http://keycloak:8080/realms/demo
 client-id: dummy-service
 client-secret: 52Bn2RNG6cERxGSB7EYwx9gOQILvkTNg
 encryption-key: AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j
-upstream-url: http://pep
+upstream-url: http://ades
 secure-cookie: false
 enable-request-id: true
 enable-refresh-tokens: true
