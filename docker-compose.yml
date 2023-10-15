@@ -6,17 +6,16 @@ services:
 #        networks:
 #            - eoepca_network
 #        environment:
-#            - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
-#            - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://keycloak-springboot-demo:7070
+#            - AUTH_SERVER_URL=http://keycloak:8080
 #        restart: on-failure
-#    identity-manager:
-#        image: um-identity-manager
-#        container_name: um-identity-manager
-#        networks:
-#            - eoepca_network
-#        ports:
-#            - '4200:4200'
-#        restart: on-failure
+    identity-manager:
+        image: um-identity-manager
+        container_name: um-identity-manager
+        networks:
+            - eoepca_network
+        ports:
+            - '4200:4200'
+        restart: on-failure
     identity-api:
         image: um-identity-api
         container_name: um-identity-api
@@ -28,7 +27,6 @@ services:
             - AUTH_SERVER_URL=http://keycloak:8080/
             - ADMIN_PASSWORD=admin
             - REALM=master
-            - RESOURCE_SERVER_ENDPOINT=http://spring-boot-oauth2-resource-server:7071
         restart: on-failure
     keycloak:
         image: quay.io/keycloak/keycloak:22.0.3
