@@ -57,6 +57,7 @@ public class WebSecurityConfig {
                         new AntPathRequestMatcher("/v3/api-docs/**")
                 ).permitAll()
 				.requestMatchers(new AntPathRequestMatcher("/api/customers")).hasAnyRole("ADMIN", "REALM-ADMIN")
+
                 .anyRequest().authenticated()
         );
         // @formatter:on
