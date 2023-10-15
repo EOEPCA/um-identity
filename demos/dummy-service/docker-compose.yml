@@ -1,0 +1,92 @@
+version: "3"
+
+services:
+  # PROXY running in nginx
+  nginx:
+    image: nginx
+    container_name: nginx
+    networks:
+      - peptest
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  # PEP: running app `peptest -auth`
+  pep:
+    build: ./app
+    container_name: pep
+    command: ["-auth"]
+    networks:
+      - peptest
+  # ADES: running app `peptest -resource`
+  ades:
+    build: ./app
+    container_name: ades
+    depends_on:
+      - pep
+    command: ["-resource"]
+    networks:
+      - peptest
+  gatekeeper:
+    image: quay.io/gogatekeeper/gatekeeper:2.8.0
+    container_name: gatekeeper
+    ports:
+      - '3000:3000'
+    restart: on-failure
+    volumes:
+      - ./gatekeeper.yml:/gatekeeper/config.yml/:ro
+    environment:
+      - PROXY_CONFIG_FILE=/gatekeeper/config.yml
+    networks:
+      - peptest
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.3
+    container_name: keycloak
+    restart: on-failure
+    ports:
+      - '8080:8080'
+    environment:
+      - KEYCLOAK_LOGLEVEL=${KEYCLOAK_LOGLEVEL}
+      - WILDFLY_LOGLEVEL=${WILDFLY_LOGLEVEL}
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+      - KC_DB_URL_HOST=${KC_DB_URL_HOST}
+      - KC_DB=${KC_DB}
+      - KC_DB_USERNAME=${KC_DB_USERNAME}
+      - KC_DB_PASSWORD=${KC_DB_PASSWORD}
+      - KC_DB_URL_PORT=${KC_DB_URL_PORT}
+      - KC_HEALTH_ENABLED=${KC_HEALTH_ENABLED}
+      - KC_FEATURES=${KC_FEATURES}
+    entrypoint: /opt/keycloak/bin/kc.sh start-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - peptest
+  postgres:
+    image: postgres:16.0
+    container_name: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - PGUSER=keycloak
+      - POSTGRES_PASSWORD=123456
+      - PGPASSWORD=123
+      - PGDATA=/var/lib/postgresql/data/keycloak
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d keycloak -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - peptest
+networks:
+  peptest:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.234.0/24

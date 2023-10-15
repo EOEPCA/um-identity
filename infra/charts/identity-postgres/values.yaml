@@ -31,7 +31,7 @@ persistence:
   accessModes: |
     - ReadWriteMany
   hostPath:
-    path: "/data/postgresql"
+    path: "/data/postgresql16"
 
 # ---------------------------------------------
 # Variable used in hpa template and deployment

@@ -1,0 +1,57 @@
+
+###
+
+# AUTHORIZED
+# - PEP passes the request, returning 200 to nginx
+# - nginx passes the original request to the Resource Server (ADES)
+GET /ades HTTP/1.1
+Host: localhost
+Authorization: Bearer 200
+X-User-Id: user-id-token set by client
+
+###
+
+# AUTHORIZED POST
+# - PEP passes the request, returning 200 to nginx
+# - nginx passes the original request to the Resource Server (ADES)
+# Notes:
+# - this uses a POST request
+# - the method is passed to the PEP in the 'X-Original-Method' header
+# - the request is proxied as a POST to the ADES
+POST /ades HTTP/1.1
+Host: localhost
+Authorization: Bearer 200
+X-User-Id: user-id-token set by client
+
+###
+
+# UNAUTHORIZED
+# - PEP returns 401 + Www-Authenticate header with ticket
+# - nginx returns 401 + Www-Authenticate header to client
+GET /ades HTTP/1.1
+Host: localhost
+Authorization: Bearer 401
+X-User-Id: user-id-token set by client
+
+###
+
+# FORBIDDEN
+# - PEP returns 403 + Www-Authenticate header with ticket
+# - nginx returns 403 to the client, but not the Www-Authenticate header
+GET /ades HTTP/1.1
+Host: localhost
+Authorization: Bearer 403
+X-User-Id: user-id-token set by client
+
+###
+
+# BAD PEP
+# - PEP returns 402 to nginx
+# - nginx only expects codes 200-299, 401, 403
+# - nginx returns 500 (Internal Server Error) to client
+GET /ades HTTP/1.1
+Host: localhost
+Authorization: Bearer 402
+X-User-Id: user-id-token set by client
+
+###

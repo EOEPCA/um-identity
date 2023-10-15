@@ -17,7 +17,7 @@ def load_configuration(path: os.PathLike | str) -> ConfigParser:
     conf = __load_configuration_file(path)
     # load environment variables related to Keycloak config
     for c in conf['Keycloak'].keys():
-        v = os.environ.get('IDENTITY_' + c.upper().replace("-", "_"))
+        v = os.environ.get(c.upper().replace("-", "_"))
         if v:
             v = v.replace('"', '')
             config['Keycloak'][c] = v

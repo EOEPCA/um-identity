@@ -25,8 +25,10 @@ services:
         ports:
             - '5566:5566'
         environment:
-            - IDENTITY_AUTH_SERVER_URL=http://keycloak:8080
-            - IDENTITY_RESOURCE_SERVER_ENDPOINT=http://spring-boot-oauth2-resource-server:7071
+            - AUTH_SERVER_URL=http://keycloak:8080/
+            - ADMIN_PASSWORD=admin
+            - REALM=master
+            - RESOURCE_SERVER_ENDPOINT=http://spring-boot-oauth2-resource-server:7071
         restart: on-failure
     keycloak:
         image: quay.io/keycloak/keycloak:22.0.3
@@ -59,7 +61,7 @@ services:
             timeout: 180s
             retries: 36
     postgres:
-        image: postgres:12.10
+        image: postgres:16.0
         container_name: postgres
         networks:
             - eoepca_network
@@ -75,7 +77,7 @@ services:
             - PGDATA=/var/lib/postgresql/data/keycloak
         restart: on-failure
     gatekeeper:
-        image: quay.io/gogatekeeper/gatekeeper:2.7.0
+        image: quay.io/gogatekeeper/gatekeeper:2.8.0
         container_name: gatekeeper
         networks:
             - eoepca_network
@@ -99,4 +101,4 @@ services:
 networks:
     eoepca_network:
         driver: bridge
-        name: eoepcanetwork
+        name: eoepca_network

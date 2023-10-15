@@ -14,11 +14,11 @@ dependencies:
     - name: identity-gatekeeper
       condition: identity-gatekeeper.enabled
       version: 1.0.0
-    - name: unprotected-service
-      condition: unprotected-service.enabled
+    - name: identity-spring-boot-echo
+      condition: identity-spring-boot-echo.enabled
       version: 1.0.0
-    - name: identity-proxy
-      condition: identity-proxy.enabled
+    - name: identity-oauth2-proxy
+      condition: identity-oauth2-proxy.enabled
       version: 1.0.0
     - name: identity-nginx
       condition: identity-nginx.enabled

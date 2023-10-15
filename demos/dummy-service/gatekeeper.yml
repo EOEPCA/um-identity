@@ -1,8 +1,10 @@
 discovery-url: http://keycloak:8080/realms/demo
-client-id: echo
-client-secret: IUOg9mvXSVmPyyCmwCJYhfoMw1ERXqsB
+client-id: dummy-service
+client-secret: MppehlyuzZz6tDrSVVjromLNHQVX2HJR
 encryption-key: AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j
-upstream-url: http://spring-boot-echo:7070
+#upstream-url: http://ades
+upstream-url: https://dummy-service-open.develop.eoepca.org
+#no-redirects: true
 secure-cookie: false
 enable-request-id: true
 enable-refresh-tokens: true

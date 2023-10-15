@@ -1,4 +1,4 @@
-discovery-url: http://keycloak:8080/realms/master
+discovery-url: http://keycloak:8080/realms/demo
 client-id: resource-server
 client-secret: NQDKaX9jBYGS8rYW0KOHhofYGI54FLPe
 encryption-key: AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j

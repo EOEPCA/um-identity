@@ -1,5 +1,5 @@
 apiVersion: v2
-name: identity-proxy
+name: identity-oauth2-proxy
 description: A OAuth2-Proxy helm chart
 version: 1.0.0
 appVersion: "v7.4.0"
