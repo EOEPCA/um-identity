@@ -1,6 +1,6 @@
 discovery-url: http://keycloak:8080/realms/demo
 client-id: gatekeeper
-client-secret: k0ciMZSAQR0IYoDM34LtHeqnki7GCs5t
+client-secret: Oj5bPfRNJyerALL60eFyQuZBCNj9woXR
 encryption-key: AgXa7xRcoClDEU0ZDSH4X0XhL5Qy2Z2j
 upstream-url: http://spring-boot-oauth2-resource-server:7072
 secure-cookie: false
