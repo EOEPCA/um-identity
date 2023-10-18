@@ -213,9 +213,9 @@ class KeycloakClient:
         )
     
     def register_general_policy(self, policy, client_id, policy_type):
-        if not isinstance(policy["roles"], list) and policy_type == "role":
+        if policy_type == "role" and not isinstance(policy["roles"], list):
             policy["roles"] = [policy["roles"]]
-        if not isinstance(policy['users'], list) and policy_type == "user":
+        if policy_type == "user"  and not isinstance(policy['users'], list):
             policy['users'] = [policy['users']]
         _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": _client_id}
