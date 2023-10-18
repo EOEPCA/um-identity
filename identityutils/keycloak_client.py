@@ -211,6 +211,19 @@ class KeycloakClient:
         return raise_error_from_response(
             data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
         )
+    
+    def register_general_policy(self, policy, client_id, policy_type):
+        if not isinstance(policy["roles"], list) and policy_type == "role":
+            policy["roles"] = [policy["roles"]]
+        if not isinstance(policy['users'], list) and policy_type == "user":
+            policy['users'] = [policy['users']]
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
+        url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
+        data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
+        return raise_error_from_response(
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
+        )
 
     def assign_resources_permissions(self, permissions, client_id):
         if not isinstance(permissions, list):
