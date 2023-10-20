@@ -490,3 +490,12 @@ class KeycloakClient:
         return raise_error_from_response(
             data_raw
         )
+    
+    def delete_resource_permissions(self, client_id, permission_id):
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
+        url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/permission/resource/" + permission_id
+        data_raw = self.keycloak_admin.raw_delete(url.format(**params_path))
+        return raise_error_from_response(
+            data_raw
+        )
