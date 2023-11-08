@@ -499,3 +499,6 @@ class KeycloakClient:
         return raise_error_from_response(
             data_raw
         )
+    
+    def create_client(self, payload):
+        return self.keycloak_admin.create_client(payload=payload)
