@@ -211,6 +211,15 @@ class KeycloakClient:
         return raise_error_from_response(
             data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
         )
+    
+    def register_general_policy(self, policy, client_id, policy_type):
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
+        url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
+        data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
+        return raise_error_from_response(
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
+        )
 
     def assign_resources_permissions(self, permissions, client_id):
         if not isinstance(permissions, list):
@@ -481,3 +490,15 @@ class KeycloakClient:
         return raise_error_from_response(
             data_raw
         )
+    
+    def delete_resource_permissions(self, client_id, permission_id):
+        _client_id = self.keycloak_admin.get_client_id(client_id)
+        params_path = {"realm-name": self.realm, "id": _client_id}
+        url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/permission/resource/" + permission_id
+        data_raw = self.keycloak_admin.raw_delete(url.format(**params_path))
+        return raise_error_from_response(
+            data_raw
+        )
+    
+    def create_client(self, payload):
+        return self.keycloak_admin.create_client(payload=payload)
