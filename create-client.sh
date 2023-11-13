@@ -1,6 +1,8 @@
 #!/bin/bash
 
-usage="$(basename "$0") [-h] [--clientid id] [--clientname name] [--resourcename name] [--resourceuris u1,u2] [--scopes s] [--users u1,u2] [--roles r1,r2] -- add a client with protected resources
+usage="
+Add a client with protected resources.
+$(basename "$0") [-h] [--clientid id] [--clientname name] [--resourcename name] [--resourceuris u1,u2] [--scopes s1,s2] [--users u1,u2] [--roles r1,r2]
 
 where:
     -h                  show help message
@@ -13,6 +15,8 @@ where:
     --users             user names with access to the resource - separated by comma (,)
     --roles             role names with access to the resource - separated by comma (,)
 "
+
+args_count=$#
 
 client_id=""
 client_name=""
@@ -66,16 +70,16 @@ while test $# -gt 0; do
            case "$1" in
                 --clientid)
                     shift
-                    if [ ! -z "${client_id}" ]; then
-                      add_resource()
+                    if [ -n "${client_id}" ]; then
+                      add_resource
                     fi
                     client_id=$1
                     shift
                     ;;
                 --clientname)
                     shift
-                    if [ ! -z "${client_name}" ]; then
-                      add_resource()
+                    if [ -n "${client_name}" ]; then
+                      add_resource
                     fi
                     client_name=$1
                     shift
@@ -91,7 +95,7 @@ while test $# -gt 0; do
                     resource_scopes=("access")
                     users=()
                     roles=()
-                    add_resource()
+                    add_resource
                     shift
                     ;;
                 --resourceuris)
@@ -116,16 +120,18 @@ while test $# -gt 0; do
                     ;;
                 -h)
                     echo "$usage"
-                    return 1;
+                    exit 1;
                     ;;
                 *)
                    echo "$usage"
-                   return 1;
+                   exit 1;
                    ;;
           esac
 done
 
-if [ $# -eq 0 ] then
+if [ "$args_count" -ne 0 ]; then
+  add_resource
+else
   # no args passed, ask for input
   read -rp "Client Id: " client_id
   read -rp "Client Name: " client_name
