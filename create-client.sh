@@ -24,6 +24,44 @@ roles=()
 
 resources=()
 
+
+add_resource() {
+  IFS=',' read -ra resource_uris_array <<<"$resource_uris"
+  IFS=',' read -ra resource_scopes_array <<<"$resource_scopes"
+  IFS=',' read -ra users_array <<<"$users"
+  IFS=',' read -ra roles_array <<<"$roles"
+  resource="{
+    \"resource\": {
+      \"name\": \"${resource_name}\",
+      \"uris\": $(json_array "${resource_uris_array[@]}"),
+      \"resource_scopes\": $(json_array "${resource_scopes_array[@]}")
+    },
+    \"permissions\": {
+      \"user\": $(json_array "${users_array[@]}"),
+      \"role\": $(json_array "${roles_array[@]}")
+    }
+  }"
+  resources+=("$resource")
+  client_id=""
+  client_name=""
+  resource_name=""
+  resource_uris=()
+  resource_scopes=()
+  users=()
+  roles=()
+}
+
+json_array() {
+  echo -n '['
+  while [ $# -gt 0 ]; do
+    x=${1//\\/\\\\}
+    echo -n "\"${x//\"/\\\"}\""
+    [ $# -gt 1 ] && echo -n ', '
+    shift
+  done
+  echo ']'
+}
+
 while test $# -gt 0; do
            case "$1" in
                 --clientid)
@@ -145,40 +183,3 @@ else
   }"
 fi
 echo $payload
-
-add_resource() {
-  IFS=',' read -ra resource_uris_array <<<"$resource_uris"
-  IFS=',' read -ra resource_scopes_array <<<"$resource_scopes"
-  IFS=',' read -ra users_array <<<"$users"
-  IFS=',' read -ra roles_array <<<"$roles"
-  resource="{
-    \"resource\": {
-      \"name\": \"${resource_name}\",
-      \"uris\": $(json_array "${resource_uris_array[@]}"),
-      \"resource_scopes\": $(json_array "${resource_scopes_array[@]}")
-    },
-    \"permissions\": {
-      \"user\": $(json_array "${users_array[@]}"),
-      \"role\": $(json_array "${roles_array[@]}")
-    }
-  }"
-  resources+=("$resource")
-  client_id=""
-  client_name=""
-  resource_name=""
-  resource_uris=()
-  resource_scopes=()
-  users=()
-  roles=()
-}
-
-json_array() {
-  echo -n '['
-  while [ $# -gt 0 ]; do
-    x=${1//\\/\\\\}
-    echo -n "\"${x//\"/\\\"}\""
-    [ $# -gt 1 ] && echo -n ', '
-    shift
-  done
-  echo ']'
-}
