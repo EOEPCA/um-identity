@@ -88,7 +88,7 @@ while test $# -gt 0; do
                 --default-resource)
                     shift
                     resource_uris=("/*")
-                    resource_scopes=()
+                    resource_scopes=("access")
                     users=()
                     roles=()
                     add_resource()
