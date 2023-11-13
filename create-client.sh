@@ -1,4 +1,55 @@
 #!/bin/bash
+i=0
+resource_names_list=()
+resource_uris_list=()
+resource_scopes_list=()
+users_list=()
+roles_list=()
+
+while test $# -gt 0; do
+           case "$1" in
+                -clientid)
+                    shift
+                    client_id=$1
+                    shift
+                    ;;
+                -clientname)
+                    shift
+                    client_name=$1
+                    shift
+                    ;;
+                -resourcename) 
+                    shift
+                    resource_names_list[$i]=$1
+                    i=$(($i+1))
+                    shift
+                    ;;
+                -resourceuris) 
+                    shift
+                    resource_uris_list[$i]=$1
+                    shift
+                    ;;
+                -scopes) 
+                    shift
+                    resource_scopes_list[$i]=$1
+                    shift
+                    ;;
+                -users) 
+                    shift
+                    users_list[$i]=$1
+                    shift
+                    ;;
+                -roles) 
+                    shift
+                    roles_list[$i]=$1
+                    shift
+                    ;;
+                *)
+                   echo "$1 is not a recognized flag!"
+                   return 1;
+                   ;;
+          esac
+done  
 
 json_array() {
   echo -n '['
@@ -11,21 +62,24 @@ json_array() {
   echo ']'
 }
 
-read -rp "Client Id: " client_id
-read -rp "Client Name: " client_name
-read -rp "Client Description: " client_description
-read -rp "Add resource? [y/N] " add_resource
+echo ${resource_names_list[@]}
+echo ${resource_uris_list[@]}
+echo ${users_list[@]}
+echo ${roles_list[@]}
+
+
 resources=()
-while [ "$add_resource" == y ]; do
-  read -rp "Resource name: " resource_name
-  read -rp "Resource URIs: " resource_uris
-  read -rp "Resource scopes (optional): " resource_scopes
+for ind in "${!resource_names_list[@]}"; do
+
+  resource_name=${resource_names_list[ind]}
+  resource_uris=${resource_uris_list[ind]}
+  resource_scopes=${resource_scopes_list[ind]}
+  users=${users_list[ind]}
+  roles=${roles_list[ind]}
+
   if [ -z "${resource_scopes}" ]; then
     resource_scopes="access"
   fi
-  read -rp "Users: " users
-  read -rp "Roles: " roles
-  echo "test"
   IFS=',' read -ra resource_uris_array <<<"$resource_uris"
   IFS=',' read -ra resource_scopes_array <<<"$resource_scopes"
   IFS=',' read -ra users_array <<<"$users"
@@ -46,7 +100,6 @@ while [ "$add_resource" == y ]; do
           }"
         resources+=("$resource")
   fi
-  read -rp "Add resource? [y/N] " add_resource
 done
 payload=""
 if ((${#resources[@]} == 0)); then
