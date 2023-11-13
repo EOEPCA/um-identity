@@ -87,8 +87,8 @@ while test $# -gt 0; do
           esac
 done
 
-
-if (( ${#resources[@]} == 0 )); then
+if [ $# -eq 0 ] then
+  # no args passed, ask for input
   read -rp "Client Id: " client_id
   read -rp "Client Name: " client_name
   read -rp "Client Description: " client_description
