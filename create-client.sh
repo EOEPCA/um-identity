@@ -147,7 +147,6 @@ else
     fi
     read -rp "Users: " users
     read -rp "Roles: " roles
-    echo "test"
     IFS=',' read -ra resource_uris_array <<<"$resource_uris"
     IFS=',' read -ra resource_scopes_array <<<"$resource_scopes"
     IFS=',' read -ra users_array <<<"$users"
