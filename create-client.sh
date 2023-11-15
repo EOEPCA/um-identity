@@ -14,7 +14,7 @@ where:
     -t or --token         access token used for authentication
     --id                  client id
     --name                client name
-    --default-resources   add default resources - /* authenticated
+    --default-resources   add default resource - /* authenticated
     --resource            resource name
     --uris                resource uris - separated by comma (,)
     --scopes              resource scopes - separated by comma (,)
@@ -221,16 +221,16 @@ fi
 
 url=
 if [ "$environment" == "local" ]; then
-  url="http://localhost:5566"
+  url="http://localhost:8080"
 elif [[ "$environment" == "develop" || "$environment" == "demo" ]]; then
   url="https://identity.api.${environment}.eoepca.org"
 elif [ "$environment" == "production" ]; then
   url="https://identity.api.eoepca.org"
 else
-  echo "Invalid environment $enviroment"
+  echo "Invalid environment $environment"
   exit 1
 fi
-endpoint="$url/create-client"
+endpoint="$url/clients"
 payload=""
 if ((${#resources[@]} == 0)); then
   payload="{
@@ -248,23 +248,20 @@ else
 fi
 echo ""
 echo "Adding client"
-echo "$url"
+echo "$endpoint"
 echo "$payload"
 echo ""
 if [[ -n "$username" && -n "$password" ]]; then
-  echo "1"
   curl -i \
     --user "$username:$password" \
     -H "Content-Type: application/json" \
     -X POST --data "$payload" "$endpoint"
 elif [ -n "$access_token" ]; then
-  echo "2"
   curl -i \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $access_token" \
     -X POST --data "$payload" "$endpoint"
 else
-  echo "3"
   curl -i \
     -H "Content-Type: application/json" \
     -X POST --data "$payload" "$endpoint"
