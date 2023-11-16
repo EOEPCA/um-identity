@@ -8,18 +8,9 @@ dependencies:
     - name: identity-api
       condition: identity-api.enabled
       version: 1.0.0
-    - name: identity-manager
-      condition: identity-manager.enabled
-      version: 1.0.0
     - name: identity-gatekeeper
       condition: identity-gatekeeper.enabled
       version: 1.0.0
     - name: identity-spring-boot-echo
       condition: identity-spring-boot-echo.enabled
-      version: 1.0.0
-    - name: identity-oauth2-proxy
-      condition: identity-oauth2-proxy.enabled
-      version: 1.0.0
-    - name: identity-nginx
-      condition: identity-nginx.enabled
       version: 1.0.0
