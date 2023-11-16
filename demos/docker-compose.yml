@@ -69,7 +69,7 @@ services:
     networks:
       - eoepca_network
   echo-gatekeeper:
-    image: quay.io/gogatekeeper/gatekeeper:2.8.0
+    image: quay.io/gogatekeeper/gatekeeper:2.8.1
     container_name: echo-gatekeeper
     ports:
       - '3000:3000'

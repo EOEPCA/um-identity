@@ -34,7 +34,6 @@
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-  - [Testing](#testing)
 - [Documentation](#documentation)
 - [Usage](#usage)
 - [Roadmap](#roadmap)
@@ -104,35 +103,40 @@ git clone https://github.com/EOEPCA/um-identity-service.git
 cd um-identity-service
 ```
 
+4. Run with Docker compose
+```sh
+docker compose up -d --build
+```
+
+4. Run with Helm
+```sh
+helm install identity-service helm
+```
+
 ## Documentation
 
 The component documentation can be found at https://eoepca.github.io/um-identity-service/.
 
-<!-- USAGE EXAMPLES -->
-
 ## Usage
 
 - **Docker-compose:**  
-`Identity-manager` - http://localhost:4200   
-`Identity-api` - http://localhost:5566  
-`Keycloak` - http://localhost:8080  
-`OAuth2 Proxy` - http://localhost:4180  
-`Demo app` - http://localhost:7070  
+`Keycloak` - http://localhost  
+`Gatekeeper Proxy` - http://localhost:3000  
+`Identity API` - http://localhost:8080  
+`Resource server demo` - http://localhost:7072  
 
 Add `127.0.0.1 keycloak` to hosts file to be able to run locally.
 
 - **Helm charts:**  
-`Identity-manager` - https://identity.manager.local.eoepca.org  
-`Identity-api` - https://identity.api.local.eoepca.org  
-`Keycloak` - https://identity.keycloak.local.eoepca.org  
-`OAuth2 Proxy` - https://identity.proxy.local.eoepca.org  
-`Demo app` - https://identity.demo.local.eoepca.org  
+`Keycloak` - https://identity.keycloak.nip.io
+`Gatekeeper Proxy` - https://identity.proxy.nip.io  
+`Identity API` - https://identity.api.nip.io  
+`Resource server demo` - https://identity.demo.nip.io  
 
 ## Roadmap
 
 See the [open issues](https://github.com/EOEPCA/um-identity-service/issues) for a list of proposed features (and known issues).
 
-<!-- CONTRIBUTING -->
 
 ## Contributing
 
@@ -149,31 +153,29 @@ Contributions are what make the open source community such an amazing place to b
 Debug Helm Charts:
 
 ```shell
-cd infra/charts/oxauth2-proxy
-helm template oauth2-proxy --debug . > oauth2-proxy-charts.log
+cd infra/charts/identity-keycloak
+helm template identity-keycloak --debug . > keycloak-chart.log
 ```
 
 ```shell
-cd infra/charts/keycloak
-helm template keycloak --debug . > keycloak-charts.log
+cd infra/charts/identity-gatekeeper
+helm template identity-gatekeeper --debug . > gatekeeper-chart.log
 ```
 
 ```shell
 cd infra/charts/identity-api
-helm template identity-api --debug . > identity-api-charts.log
+helm template identity-api --debug . > identity-api-chart.log
 ```
 
 ```shell
-cd infra/charts/identity-manager
-helm template identity-manager --debug . > identity-manager-charts.log
+cd infra/charts/identity-postgres
+helm template identity-postgres --debug . > postgres-chart.log
 ```
 
 ```shell
-cd infra/charts/postgres
-helm template postgres --debug . > postgres-charts.log
+cd infra/charts/identity-spring-boot-echo
+helm template identity-postgres --debug . > spring-boot-echo-chart.log
 ```
-
-<!-- LICENSE -->
 
 ## License
 

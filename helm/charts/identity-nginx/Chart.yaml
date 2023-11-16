@@ -1,5 +1,0 @@
-apiVersion: v2
-name: identity-nginx
-description: A helm chart for Identity NGINX
-version: 1.0.0
-appVersion: "alpine"
