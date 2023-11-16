@@ -1,40 +1,22 @@
 version: "3.5"
 services:
-#    identity-setup:
-#        image: um-identity-setup
-#        container_name: um-identity-setup
-#        networks:
-#            - eoepca_network
-#        environment:
-#            - AUTH_SERVER_URL=http://keycloak:8080
-#        restart: on-failure
-    identity-manager:
-        image: um-identity-manager
-        container_name: um-identity-manager
-        networks:
-            - eoepca_network
-        ports:
-            - '4200:4200'
-        restart: on-failure
     identity-api:
-        image: um-identity-api
+        image: eoepca/um-identity-api:latest
         container_name: um-identity-api
         networks:
             - eoepca_network
         ports:
-            - '5566:5566'
+            - '8080:8080'
         environment:
-            - AUTH_SERVER_URL=http://keycloak:8080/
-            - ADMIN_PASSWORD=admin
-            - REALM=master
+            - AUTH_SERVER_URL=http://keycloak:8080
         restart: on-failure
     keycloak:
-        image: quay.io/keycloak/keycloak:22.0.3
+        image: quay.io/keycloak/keycloak:22.0.5
         container_name: keycloak
         networks:
             - eoepca_network
         ports:
-            - "8080:8080"
+            - "80:8080"
         environment:
             - KEYCLOAK_LOGLEVEL=DEBUG
             - WILDFLY_LOGLEVEL=DEBUG
@@ -49,7 +31,7 @@ services:
             - KC_DB_PASSWORD=123456
             - KC_DB_USERNAME=keycloak
             - KC_DB_URL_PORT=5432
-        entrypoint: /opt/keycloak/bin/kc.sh start
+        entrypoint: /opt/keycloak/bin/kc.sh start-dev
         volumes:
             - ./keycloak/health-check.sh:/opt/keycloak/health-check.sh
         restart: on-failure
@@ -75,7 +57,7 @@ services:
             - PGDATA=/var/lib/postgresql/data/keycloak
         restart: on-failure
     gatekeeper:
-        image: quay.io/gogatekeeper/gatekeeper:2.8.0
+        image: quay.io/gogatekeeper/gatekeeper:2.8.1
         container_name: gatekeeper
         networks:
             - eoepca_network
@@ -86,9 +68,6 @@ services:
             - ./gatekeeper.yml:/gatekeeper/config.yml/:ro
         environment:
             - PROXY_CONFIG_FILE=/gatekeeper/config.yml
-        #depends_on:
-        #    keycloak:
-        #        condition: service_healthy
     resource-server:
         build: demos/spring-boot-oauth2-resource-server
         container_name: spring-boot-oauth2-resource-server

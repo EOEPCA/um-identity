@@ -4,10 +4,8 @@ import os
 from keycloak import KeycloakOpenID, KeycloakOpenIDConnection, KeycloakAdmin, KeycloakUMA, ConnectionManager, \
     urls_patterns
 from keycloak.exceptions import raise_error_from_response, KeycloakGetError, KeycloakPostError, KeycloakPutError
-from .logger import Logger
 
-Logger.get_instance().load_configuration(os.path.join(os.path.dirname(__file__), "../logging.yml"))
-logger = logging.getLogger("IDENTITY_UTILS")
+logger = logging.getLogger('um-identity-service')
 
 
 class KeycloakClient:
