@@ -18,17 +18,13 @@
 [![MIT License][license-shield]][license-url]
 ![Build][build-shield]
 
-<!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/EOEPCA/um-identity-service">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
 
   <h3 align="center">Identity service</h3>
 
   <p align="center">
-    Identity service for EOEPCA project
+    Identity service for EOEPCA project.
 </p>
 
 ## Table of Contents
@@ -51,19 +47,17 @@
 ### About The Project
 
 Identity offers seemingly authentication and authorization to be added to Applications.  
-Includes five main components:
+Includes four main components:
 - **Keycloak integration**: Open Source Identity and Access Management.
-- **Identity Manager**: Web application using AngularJS and Angular Material to visually interact with the platform. Interacts with Identity API.
+- **Gatekeeper proxy integration**: Authentication Proxy to enable seemless authentication and authorization to be added to Applications. Interacts with Keycloak.
+- **Keycloak client**: Keycloak client written in Python based on [python-keycloak](https://pypi.org/project/python-keycloak/) package.
 - **Identity API**: Restful API using Flask Framework to be consumed by Identity Manager. Interacts with Keycloak API.
-- **OAuth2 Proxy integration**: Authentication Proxy to enable seemless authentication and authorization to be added to Applications. Interacts with Keycloak.
-- **PostgreSQL**: SQL database for Keycloak to store data.
 
 ### Built With
 
 - [Keycloak](https://www.keycloak.org/)
-- [AngularJS](https://angularjs.org/) + [Angular Material](https://material.angular.io/)
-- [Flask Framework](https://flask.palletsprojects.com/en/2.3.x/)
-- [OAuth2 Proxy](https://oauth2-proxy.github.io/oauth2-proxy/)
+- [Gatekeeper Proxy](https://github.com/gogatekeeper/gatekeeper)
+- [FastAPI Framework](https://fastapi.tiangolo.com/)
 - [PostgreSQL](https://www.postgresql.org/)
 
 ## Getting Started
