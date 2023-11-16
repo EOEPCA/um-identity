@@ -498,4 +498,7 @@ class KeycloakClient:
         )
 
     def create_client(self, payload, skip_exists=True):
-        return self.keycloak_admin.create_client(payload=payload, skip_exists=skip_exists)
+        data_raw = self.keycloak_admin.create_client(payload=payload, skip_exists=skip_exists)
+        return raise_error_from_response(
+            data_raw
+        )
