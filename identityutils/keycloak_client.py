@@ -1,13 +1,9 @@
 import json
 import logging
-import os
-from keycloak import KeycloakOpenID, KeycloakOpenIDConnection, KeycloakAdmin, KeycloakUMA, ConnectionManager, \
-    urls_patterns
+from keycloak import KeycloakOpenIDConnection, KeycloakAdmin, urls_patterns
 from keycloak.exceptions import raise_error_from_response, KeycloakGetError, KeycloakPostError, KeycloakPutError
 
 logger = logging.getLogger('um-identity-service')
-
-
 
 class KeycloakClient:
 
@@ -208,15 +204,6 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
         )
     
-    def register_general_policy(self, policy, client_id, policy_type):
-        _client_id = self.keycloak_admin.get_client_id(client_id)
-        params_path = {"realm-name": self.realm, "id": _client_id}
-        url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
-        data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
-        return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=True
-        )
-
     def register_general_policy(self, policy, client_id, policy_type):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": _client_id}
@@ -507,4 +494,3 @@ class KeycloakClient:
 
     def create_client(self, payload, skip_exists=True):
         return self.keycloak_admin.create_client(payload=payload, skip_exists=skip_exists)
-       
