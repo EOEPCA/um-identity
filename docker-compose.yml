@@ -31,15 +31,16 @@ services:
             - KC_DB_PASSWORD=123456
             - KC_DB_USERNAME=keycloak
             - KC_DB_URL_PORT=5432
-        entrypoint: /opt/keycloak/bin/kc.sh start-dev
+        entrypoint: /opt/keycloak/bin/kc.sh start-dev --import-realm
         volumes:
             - ./keycloak/health-check.sh:/opt/keycloak/health-check.sh
-        restart: on-failure
+            - ./realm-demo.json:/opt/keycloak/data/import/realm-demo.json
         healthcheck:
             test: "bash /opt/keycloak/health-check.sh"
             interval: 5s
             timeout: 180s
             retries: 36
+        restart: on-failure
     postgres:
         image: postgres:16.0
         container_name: postgres
@@ -55,7 +56,6 @@ services:
             - POSTGRES_PASSWORD=123456
             - PGPASSWORD=123
             - PGDATA=/var/lib/postgresql/data/keycloak
-        restart: on-failure
     gatekeeper:
         image: quay.io/gogatekeeper/gatekeeper:2.8.1
         container_name: gatekeeper

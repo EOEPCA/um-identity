@@ -24,7 +24,7 @@ where:
 "
 
 TEMP=$(getopt -o he:u:p:t: --long id:,name:,description:,default,authenticated,resource:,uris:,scopes:,users:,roles: \
-  -n $(basename "$0") -- "$@")
+  -n "$(basename "$0")" -- "$@")
 
 if [ $? != 0 ]; then
   exit 1
@@ -59,7 +59,7 @@ add_resource() {
       \"uris\": $(json_array "${resource_uris_array[@]}"),
       \"scopes\": $(json_array "${resource_scopes_array[@]}"),
       \"permissions\": {
-        \"authenticated\": "${authenticated}"
+        \"authenticated\": ${authenticated}
       }
     }"
   else
