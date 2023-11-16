@@ -8,6 +8,7 @@ from keycloak.exceptions import raise_error_from_response, KeycloakGetError, Key
 logger = logging.getLogger('um-identity-service')
 
 
+
 class KeycloakClient:
 
     def __init__(self, server_url, realm, username, password):
@@ -505,7 +506,5 @@ class KeycloakClient:
         )
 
     def create_client(self, payload, skip_exists=True):
-        data_raw = self.keycloak_admin.create_client(payload=payload, skip_exists=skip_exists)
-        return raise_error_from_response(
-            data_raw
-        )
+        return self.keycloak_admin.create_client(payload=payload, skip_exists=skip_exists)
+       
