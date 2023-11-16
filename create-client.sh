@@ -59,7 +59,7 @@ add_resource() {
       \"uris\": $(json_array "${resource_uris_array[@]}"),
       \"scopes\": $(json_array "${resource_scopes_array[@]}"),
       \"permissions\": {
-        \"authenticated\": ${authenticated}
+        \"authenticated\": "${authenticated}"
       }
     }"
   else
@@ -79,7 +79,7 @@ add_resource() {
   resource_scopes=
   users=
   roles=
-  authenticated=
+  authenticated=false
 }
 
 json_array() {
@@ -126,8 +126,8 @@ while true; do
     resource_scopes="access"
     users=
     roles=
+    authenticated=true
     shift
-    add_resource
     ;;
   --authenticated)
     authenticated="$1"
