@@ -1,7 +1,7 @@
 version: "3.5"
 services:
     identity-api:
-        image: eoepca/um-identity-api:latest
+        image: eoepca/um-identity-api:v1.0.5
         container_name: um-identity-api
         networks:
             - eoepca_network
@@ -9,6 +9,8 @@ services:
             - '8080:8080'
         environment:
             - AUTH_SERVER_URL=http://keycloak:8080
+            - ADMIN_USERNAME=admin
+            - ADMIN_PASSWORD=admin
         restart: on-failure
     keycloak:
         image: quay.io/keycloak/keycloak:22.0.5
