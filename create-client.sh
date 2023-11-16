@@ -4,17 +4,18 @@ args_count=$#
 
 usage="
 Add a client with protected resources.
-$(basename "$0") [-h] [-e] [-u] [-p] [-t | --token t] --id id [--name name] [--default-resources] [--resource name] [--uris u1,u2] [--scopes s1,s2] [--users u1,u2] [--roles r1,r2]
+$(basename "$0") [-h] [-e] [-u] [-p] [-t | --token t] --id id [--name name] [--default] [--authenticated] [--resource name] [--uris u1,u2] [--scopes s1,s2] [--users u1,u2] [--roles r1,r2]
 
 where:
     -h                    show help message
-    -e                    enviroment - local, develop, demo, production - defaults to demo
+    -e                    enviroment - local, develop, demo, production - defaults to local
     -u                    username used for authentication
     -p                    password used for authentication
     -t or --token         access token used for authentication
     --id                  client id
     --name                client name
-    --default-resources   add default resource - /* authenticated
+    --default             add default resource - /* authenticated
+    --authenticated       allow access to the resource when authenticated
     --resource            resource name
     --uris                resource uris - separated by comma (,)
     --scopes              resource scopes - separated by comma (,)
@@ -22,7 +23,7 @@ where:
     --roles               role names with access to the resource - separated by comma (,)
 "
 
-TEMP=$(getopt -o he:u:p:t: --long id:,name:,description:,default,resource:,uris:,scopes:,users:,roles: \
+TEMP=$(getopt -o he:u:p:t: --long id:,name:,description:,default,authenticated,resource:,uris:,scopes:,users:,roles: \
   -n $(basename "$0") -- "$@")
 
 if [ $? != 0 ]; then
@@ -31,15 +32,16 @@ fi
 
 eval set -- "$TEMP"
 
-environment="demo"
+environment="local"
 client_id=
 client_name=
 client_description=
 resource_name=
-resource_uris=()
-resource_scopes=()
-users=()
-roles=()
+resource_uris=
+resource_scopes=
+users=
+roles=
+authenticated=false
 
 resources=()
 
@@ -51,23 +53,33 @@ add_resource() {
   IFS=',' read -ra resource_scopes_array <<<"$resource_scopes"
   IFS=',' read -ra users_array <<<"$users"
   IFS=',' read -ra roles_array <<<"$roles"
-  resource="{
-    \"resource\": {
+  if ((${#users_array[@]} == 0 && ${#roles_array[@]} == 0)); then
+    resource="{
       \"name\": \"${resource_name}\",
       \"uris\": $(json_array "${resource_uris_array[@]}"),
-      \"resource_scopes\": $(json_array "${resource_scopes_array[@]}")
-    },
-    \"permissions\": {
-      \"user\": $(json_array "${users_array[@]}"),
-      \"role\": $(json_array "${roles_array[@]}")
-    }
-  }"
+      \"scopes\": $(json_array "${resource_scopes_array[@]}"),
+      \"permissions\": {
+        \"authenticated\": ${authenticated}
+      }
+    }"
+  else
+    resource="{
+      \"name\": \"${resource_name}\",
+      \"uris\": $(json_array "${resource_uris_array[@]}"),
+      \"scopes\": $(json_array "${resource_scopes_array[@]}"),
+      \"permissions\": {
+        \"user\": $(json_array "${users_array[@]}"),
+        \"role\": $(json_array "${roles_array[@]}")
+      }
+    }"
+  fi
   resources+=("$resource")
   resource_name=
-  resource_uris=()
-  resource_scopes=()
-  users=()
-  roles=()
+  resource_uris=
+  resource_scopes=
+  users=
+  roles=
+  authenticated=
 }
 
 json_array() {
@@ -109,11 +121,16 @@ while true; do
     shift 2
     ;;
   --default)
-    resource_name="Default resource"
-    resource_uris=("/*")
-    resource_scopes=("access")
-    users=()
-    roles=()
+    resource_name="Default Resource"
+    resource_uris="/*"
+    resource_scopes="access"
+    users=
+    roles=
+    shift
+    add_resource
+    ;;
+  --authenticated)
+    authenticated="$1"
     shift
     ;;
   --uris)
@@ -165,59 +182,70 @@ if [ "$args_count" -ne 0 ]; then
     add_resource
   fi
 else
-  # no args passed, ask for input
-  read -rp "Username: " username
-  read -s -p "Password: " password
-  if [ -z "$username" && -z "$password" ]; then
-    read -s -p "Access token: " access_token
+  read -rp "> Environment (local/develop/demo/production): " environment
+  if [ -z "$environment" ]; then
+    echo "Using default environment (local)"
+    environment="local"
   fi
-  read -rp "Client Id: " client_id
-  read -rp "Client Name: " client_name
-  read -rp "Client Description: " client_description
-  read -rp "Add resource? [y/N] " add_resource
+  # no args passed, ask for input
+  if [ "$environment" != "local" ]; then
+    read -rp "> Username (optional): " username
+      read -rsp "> Password (optional): " password
+      if [ -n "$password" ]; then
+        echo "*********"
+      else
+        echo ""
+      fi
+      if [ -z "$username" ] && [ -z "$password" ]; then
+        read -rsp "> Access token: " access_token
+        if [ -n "$access_token" ]; then
+          echo "******************"
+        else
+          echo ""
+        fi
+      fi
+      if [ -z "$username" ] && [ -z "$password" ] && [ -z "$access_token" ]; then
+        echo "Authentication is required"
+        exit 1
+      fi
+  fi
+  read -rp "> Client Id: " client_id
+  read -rp "> Client Name (optional): " client_name
+  read -rp "> Client Description (optional): " client_description
+  read -rp "> Add resource? [y/N] " add_resource_answer
   resources=()
-  while [ "$add_resource" == y ]; do
-    read -rp "Resource name: " resource_name
-    read -rp "Resource URIs: " resource_uris
-    read -rp "Resource scopes (optional): " resource_scopes
+  while [ "$add_resource_answer" == y ]; do
+    read -rp "> Resource name: " resource_name
+    read -rp "> Resource URIs: " resource_uris
+    read -rp "> Resource scopes (optional): " resource_scopes
     if [ -z "${resource_scopes}" ]; then
+      echo "Using default scope (access)"
       resource_scopes="access"
     fi
-    read -rp "Users: " users
-    read -rp "Roles: " roles
-    IFS=',' read -ra resource_uris_array <<<"$resource_uris"
-    IFS=',' read -ra resource_scopes_array <<<"$resource_scopes"
-    IFS=',' read -ra users_array <<<"$users"
-    IFS=',' read -ra roles_array <<<"$roles"
-    if ((${#users_array[@]} == 0 && ${#roles_array[@]} == 0)); then
-      echo "Resource permission requires at least one user or role... skipping"
-    else
-      resource="{
-              \"resource\": {
-                \"name\": \"${resource_name}\",
-                \"uris\": $(json_array "${resource_uris_array[@]}"),
-                \"resource_scopes\": $(json_array "${resource_scopes_array[@]}")
-              },
-              \"permissions\": {
-                \"user\": $(json_array "${users_array[@]}"),
-                \"role\": $(json_array "${roles_array[@]}")
-              }
-            }"
-      resources+=("$resource")
+    read -rp "> Users (optional): " users
+    read -rp "> Roles (optional): " roles
+    if [ -z "$users" ] && [ -z "$roles" ]; then
+      read -rp "> Authenticated only? [y/N] " authenticated
+      if [ "$authenticated" == y ]; then
+        authenticated=true
+      fi
     fi
-    read -rp "Add resource? [y/N] " add_resource
+    add_resource
+    read -rp "> Add resource? [y/N] " add_resource_answer
   done
+fi
+
+if [ "$environment" != "local" ]; then
+  if [ -z "$username" ] && [ -z "$password" ] && [ -z "$access_token" ]; then
+    echo "> Authentication is required"
+    exit 1
+  fi
 fi
 
 if [ -z "$client_id" ]; then
   echo "Missing client id"
   exit 1
 fi
-
-#if [ -z "$username" && -z "$password" && -z "$token" ]; then
-#  echo "Missing authentication"
-#  exit 1
-#fi
 
 url=
 if [ "$environment" == "local" ]; then
