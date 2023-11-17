@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.8"
 
 services:
   open-echo:
@@ -24,7 +24,7 @@ services:
     networks:
       - eoepca_network
   keycloak:
-    image: quay.io/keycloak/keycloak:22.0.3
+    image: quay.io/keycloak/keycloak:22.0.5
     container_name: keycloak
     restart: on-failure
     ports:
@@ -41,7 +41,9 @@ services:
       - KC_DB_URL_PORT=${KC_DB_URL_PORT}
       - KC_HEALTH_ENABLED=${KC_HEALTH_ENABLED}
       - KC_FEATURES=${KC_FEATURES}
-    entrypoint: /opt/keycloak/bin/kc.sh start-dev
+    entrypoint: /opt/keycloak/bin/kc.sh start-dev --import-realm
+    volumes:
+      - ./realm-demo.json:/opt/keycloak/data/import/realm-demo.json
     depends_on:
       postgres:
         condition: service_healthy
