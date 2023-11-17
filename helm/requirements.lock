@@ -1,18 +1,18 @@
 dependencies:
-- name: identity-api
-  repository: ""
-  version: 1.0.0
-- name: identity-manager
-  repository: ""
-  version: 1.0.0
 - name: identity-keycloak
-  repository: ""
-  version: 1.0.0
-- name: identity-proxy
   repository: ""
   version: 1.0.0
 - name: identity-postgres
   repository: ""
   version: 1.0.0
-digest: sha256:62c268416cccc94b965c49b394b4a7e03069c4a37107351508dd340a5a67ed84
-generated: "2023-07-04T16:43:39.5526075+01:00"
+- name: identity-api
+  repository: ""
+  version: 1.0.0
+- name: identity-gatekeeper
+  repository: ""
+  version: 1.0.0
+- name: identity-spring-boot-echo
+  repository: ""
+  version: 1.0.0
+digest: sha256:73c52f425a934d48ae93fc44e0d3411054a4b2c5c5a280efc73e53d664835489
+generated: "2023-11-16T16:41:53.3171095Z"

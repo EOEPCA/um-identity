@@ -1,7 +1,8 @@
-version: "3.5"
+version: "3.8"
 services:
     identity-api:
-        image: eoepca/um-identity-api:latest
+        image: eoepca/um-identity-api:v1.0.6
+        pull_policy: always
         container_name: um-identity-api
         networks:
             - eoepca_network
@@ -9,6 +10,8 @@ services:
             - '8080:8080'
         environment:
             - AUTH_SERVER_URL=http://keycloak:8080
+            - ADMIN_USERNAME=admin
+            - ADMIN_PASSWORD=admin
         restart: on-failure
     keycloak:
         image: quay.io/keycloak/keycloak:22.0.5
@@ -34,7 +37,7 @@ services:
         entrypoint: /opt/keycloak/bin/kc.sh start-dev --import-realm
         volumes:
             - ./keycloak/health-check.sh:/opt/keycloak/health-check.sh
-            - ./realm-demo.json:/opt/keycloak/data/import/realm-demo.json
+            - ./keycloak/data/import/realm-demo.json:/opt/keycloak/data/import/realm-demo.json
         healthcheck:
             test: "bash /opt/keycloak/health-check.sh"
             interval: 5s
@@ -65,7 +68,7 @@ services:
             - '3000:3000'
         restart: on-failure
         volumes:
-            - ./gatekeeper.yml:/gatekeeper/config.yml/:ro
+            - ./gatekeeper/gatekeeper.yml:/gatekeeper/config.yml/:ro
         environment:
             - PROXY_CONFIG_FILE=/gatekeeper/config.yml
     resource-server:
