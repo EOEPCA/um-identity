@@ -335,7 +335,7 @@ class KeycloakClient:
             } for role in realm_roles
         ]
         logger.info('Assigning roles to user ' + user_id + ':\n' + json.dumps(realm_roles, indent=2))
-        self.keycloak_admin.assign_realm_roles(user_id=user_id, roles=realm_roles, skip_exists=skip_exists)
+        self.keycloak_admin.assign_realm_roles(user_id=user_id, roles=realm_roles)
 
     def create_client_role(self, client_id: str, role: str, skip_exists=True) -> str:
         payload = {
