@@ -32,7 +32,7 @@ fi
 
 eval set -- "$TEMP"
 
-environment="local"
+environment="develop"
 client_id=
 client_name=
 client_description=

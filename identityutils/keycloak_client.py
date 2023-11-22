@@ -17,27 +17,27 @@ class KeycloakClient:
             verify=self.server_url.startswith('https'),
             timeout=10)
         self.keycloak_admin = KeycloakAdmin(connection=openid_connection)
-        # TODO init keycloak_uma
-        self.keycloak_uma = None
+        self.keycloak_uma = KeycloakUMA(connection=openid_connection)
         self.set_realm(realm)
-        # we have one admin client to do admin REST API calls
         admin_client_id = self.keycloak_admin.get_client_id('admin-cli')
-        self.admin_client = self.keycloak_admin.get_client(admin_client_id)
+        admin_client = self.keycloak_admin.get_client(admin_client_id)
         openid_connection = KeycloakOpenIDConnection(
             server_url=self.server_url,
             user_realm_name="master",
             realm_name=self.realm,
             username=self.keycloak_admin.username,
             password=self.keycloak_admin.password,
-            client_id=self.admin_client.get('clientId'),
+            client_id=admin_client.get('clientId'),
             verify=self.server_url.startswith('https'),
             timeout=10)
         self.keycloak_admin = KeycloakAdmin(connection=openid_connection)
+        self.keycloak_uma = KeycloakUMA(connection=openid_connection)
 
     def set_realm(self, realm):
         if realm != 'master':
             self.keycloak_admin.create_realm(payload={"realm": self.realm, "enabled": True}, skip_exists=True)
         self.keycloak_admin.realm_name = self.realm
+        self.keycloak_uma.realm_name = self.realm
 
     def import_realm(self, realm: dict) -> dict:
         return self.keycloak_admin.import_realm(realm)
@@ -240,10 +240,10 @@ class KeycloakClient:
             self.assign_realm_roles_to_user(user_id, realm_roles)
         return user_id
 
-    def get_user_token(self, username, password, openid):
+    def get_user_token(self, username, password):
         """Gets a user token using username/password authentication.
         """
-        return openid.token(username, password, scope="openid profile")
+        return self.keycloak_admin.token(username, password, scope="openid profile")
 
     def get_resources(self, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
