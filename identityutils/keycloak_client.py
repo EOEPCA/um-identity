@@ -1,6 +1,6 @@
 import json
 import logging
-from keycloak import KeycloakOpenIDConnection, KeycloakAdmin, urls_patterns
+from keycloak import KeycloakOpenIDConnection, KeycloakAdmin, KeycloakUMA, urls_patterns
 from keycloak.exceptions import raise_error_from_response, KeycloakGetError, KeycloakPostError, KeycloakPutError
 
 logger = logging.getLogger('um-identity-service')
