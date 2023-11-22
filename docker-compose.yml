@@ -37,6 +37,7 @@ services:
         entrypoint: /opt/keycloak/bin/kc.sh start-dev
         volumes:
             - ./keycloak/health-check.sh:/opt/keycloak/health-check.sh
+            - ./keycloak/data/import/realm-demo.json:/opt/keycloak/data/import/realm-demo.json
         healthcheck:
             test: "bash /opt/keycloak/health-check.sh"
             interval: 5s
