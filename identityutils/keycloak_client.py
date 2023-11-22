@@ -45,8 +45,11 @@ class KeycloakClient:
     def register_resources(self, client_id, resources, skip_exists=False):
         if not isinstance(resources, list):
             resources = [resources]
+        response = []
         for resource in resources:
-            self.register_resource(client_id, resource, skip_exists)
+            r = self.register_resource(client_id, resource, skip_exists)
+            response.append(r)
+        return response
 
     def register_resource(self, client_id, resource, skip_exists=False):
         _client_id = self.keycloak_admin.get_client_id(client_id)
@@ -201,12 +204,15 @@ class KeycloakClient:
         if not isinstance(permissions, list):
             permissions = [permissions]
         _client_id = self.keycloak_admin.get_client_id(client_id)
+        response = []
         for permission in permissions:
-            response = self.keycloak_admin.create_client_authz_resource_based_permission(client_id=_client_id,
+            r = self.keycloak_admin.create_client_authz_resource_based_permission(client_id=_client_id,
                                                                                          payload=permission,
                                                                                          skip_exists=skip_exists)
             logger.info("Creating resource permission: " + json.dumps(permission, indent=2))
-            logger.info("Response: " + str(response))
+            logger.info("Response: " + str(r))
+            response.append(r)
+        return response
 
     def create_user(self, username, password, realm_roles=None, exist_ok=True) -> str:
         if realm_roles is None:
@@ -335,7 +341,7 @@ class KeycloakClient:
             } for role in realm_roles
         ]
         logger.info('Assigning roles to user ' + user_id + ':\n' + json.dumps(realm_roles, indent=2))
-        self.keycloak_admin.assign_realm_roles(user_id=user_id, roles=realm_roles)
+        return self.keycloak_admin.assign_realm_roles(user_id=user_id, roles=realm_roles)
 
     def create_client_role(self, client_id: str, role: str, skip_exists=True) -> str:
         payload = {
