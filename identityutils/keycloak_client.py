@@ -42,20 +42,20 @@ class KeycloakClient:
     def import_realm(self, realm: dict) -> dict:
         return self.keycloak_admin.import_realm(realm)
 
-    def register_resources(self, resources):
+    def register_resources(self, client_id, resources):
         if not isinstance(resources, list):
             resources = [resources]
         for resource in resources:
-            self.register_resource(resource)
+            self.register_resource(client_id, resource)
 
-    def register_resource(self, resource, client_id):
+    def register_resource(self, client_id, resource):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         response = self.keycloak_admin.create_client_authz_resource(client_id=_client_id, payload=resource)
         logger.info('Created resource:\n' + json.dumps(resource, indent=2))
         logger.info('Response: ' + str(response))
         return response
 
-    def update_resource(self, resource_id, resource, client_id):
+    def update_resource(self, client_id, resource_id, resource):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         if "_id" not in resource:
             resource["_id"] = resource_id
@@ -75,7 +75,7 @@ class KeycloakClient:
         data_raw = self.keycloak_admin.connection.raw_delete(url.format(**params_path))
         return raise_error_from_response(data_raw, KeycloakPutError)
 
-    def delete_policies(self, policies, client_id):
+    def delete_policies(self, client_id, policies):
         if not isinstance(policies, list):
             policies = [policies]
             logger.info("Deleting policies: " + str(policies))
@@ -89,14 +89,14 @@ class KeycloakClient:
         for d in delete_policies:
             self.keycloak_admin.delete_client_authz_policy(client_id=_client_id, policy_id=d.get('id'))
 
-    def __register_policy(self, policy, register_f, client_id):
+    def __register_policy(self, client_id, policy, register_f):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         logger.info("Creating policy:\n" + json.dumps(policy, indent=2))
         response = register_f(client_id=_client_id, payload=policy)
         logger.info("Response: " + str(response))
         return response
 
-    def __register_policy_send_post(self, policy_type, client_id, payload):
+    def __register_policy_send_post(self, client_id, policy_type, payload):
         params_path = {"realm-name": self.realm, "id": client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.connection.raw_post(url.format(**params_path), data=json.dumps(payload))
@@ -104,7 +104,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201]
         )
 
-    def register_aggregated_policy(self, policy, client_id):
+    def register_aggregated_policy(self, client_id, policy):
         policy_type = "aggregate"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": _client_id}
@@ -114,7 +114,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409]
         )
 
-    def register_client_policy(self, policy, client_id):
+    def register_client_policy(self, client_id, policy):
         policy_type = "client"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         policy["clients"] = [client_id]
@@ -125,7 +125,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409]
         )
 
-    def register_client_scope_policy(self, policy, client_id):
+    def register_client_scope_policy(self, client_id, policy):
         policy_type = "client-scope"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         policy["owner"] = client_id
@@ -136,7 +136,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409]
         )
 
-    def register_group_policy(self, policy, client_id):
+    def register_group_policy(self, client_id, policy):
         policy_type = "group"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": _client_id}
@@ -146,7 +146,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409]
         )
 
-    def register_regex_policy(self, policy, client_id):
+    def register_regex_policy(self, client_id, policy):
         policy_type = "regex"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": _client_id}
@@ -156,7 +156,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409]
         )
 
-    def register_role_policy(self, policy, client_id):
+    def register_role_policy(self, client_id, policy):
         policy_type = "role"
         if not isinstance(policy["roles"], list):
             policy["roles"] = [policy["roles"]]
@@ -168,7 +168,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409]
         )
 
-    def register_time_policy(self, policy, client_id):
+    def register_time_policy(self, client_id, policy):
         # time can be one of:
         # "notAfter":"1970-01-01 00:00:00"
         # "notBefore":"1970-01-01 00:00:00"
@@ -191,7 +191,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409]
         )
 
-    def register_user_policy(self, policy, client_id):
+    def register_user_policy(self, client_id, policy):
         if not isinstance(policy['users'], list):
             policy['users'] = [policy['users']]
         policy_type = "user"
@@ -212,7 +212,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError, expected_codes=[201, 409]
         )
 
-    def assign_resources_permissions(self, permissions, client_id):
+    def assign_resources_permissions(self, client_id, permissions):
         if not isinstance(permissions, list):
             permissions = [permissions]
         _client_id = self.keycloak_admin.get_client_id(client_id)
@@ -388,7 +388,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError
         )
 
-    def delete_policy(self, policy_id, client_id):
+    def delete_policy(self, client_id, policy_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         return self.keycloak_admin.delete_client_authz_policy(_client_id, policy_id)
 
