@@ -243,7 +243,7 @@ class KeycloakClient:
     def get_user_token(self, username, password):
         """Gets a user token using username/password authentication.
         """
-        return self.keycloak_admin.token(username, password, scope="openid profile")
+        return self.keycloak_admin.connection.keycloak_openid.token(username, password, scope="openid profile")
 
     def get_resources(self, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
