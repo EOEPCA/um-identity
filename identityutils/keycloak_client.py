@@ -241,6 +241,20 @@ class KeycloakClient:
         _client_id = self.keycloak_admin.get_client_id(client_id)
         return self.keycloak_admin.get_client_authz_resources(_client_id)
 
+    def get_resource_id(self, name: str = "",
+                        exact_name: bool = False,
+                        uri: str = "",
+                        owner: str = "",
+                        resource_type: str = "",
+                        scope: str = "",
+                        first: int = 0,
+                        maximum: int = -1, ) -> [str]:
+        """Gets a resource id from attributes
+        """
+        return self.keycloak_uma.resource_set_list_ids(name=name, exact_name=exact_name, uri=uri, owner=owner,
+                                                       resource_type=resource_type, scope=scope, first=first,
+                                                       maximum=maximum)
+
     def __query_resources(self, name: str = "",
                           exact_name: bool = False,
                           uri: str = "",
@@ -474,3 +488,45 @@ class KeycloakClient:
 
     def create_client(self, payload, skip_exists=True):
         return self.keycloak_admin.create_client(payload=payload, skip_exists=skip_exists)
+
+    def generate_protection_pat(self, client_id, client_secret):
+        """Generate a personal access token
+        """
+        payload = {
+            "grant_type": "client_credentials",
+            "client_id": client_id,
+            "client_secret": client_secret,
+        }
+        connection = ConnectionManager(self.keycloak_uma.connection.base_url)
+        connection.add_param_headers("Content-Type", "application/x-www-form-urlencoded")
+        data_raw = connection.raw_post(self.keycloak_uma.uma_well_known["token_endpoint"], data=payload)
+        return raise_error_from_response(data_raw, KeycloakPostError)
+
+
+    def create_permission_ticket(self, resources: [str]):
+        payload = [
+            {"resource_id": resource} for resource in resources
+        ]
+        params_path = {"realm-name": self.realm}
+        url = "/realms/{realm-name}/authz/protection/permission"
+        data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(payload))
+        return raise_error_from_response(
+            data_raw, KeycloakPostError
+        )
+
+    def get_rpt(self, client_id, client_secret, token, ticket):
+        payload = {
+            "claim_token_format": "http://openid.net/specs/openid-connect-core-1_0.html#IDToken",
+            "grant_type": "urn:ietf:params:oauth:grant-type:uma-ticket",
+            "claim_token": token,
+            "ticket": ticket,
+            "client_id": client_id,
+            "client_secret": client_secret
+        }
+        params_path = {
+            "realm-name": self.realm
+        }
+        connection = ConnectionManager(self.keycloak_uma.connection.base_url)
+        connection.add_param_headers("Content-Type", "application/x-www-form-urlencoded")
+        data = connection.raw_post(urls_patterns.URL_TOKEN.format(**params_path), data=payload)
+        return raise_error_from_response(data, KeycloakPostError)
