@@ -47,7 +47,7 @@ resources=()
 
 add_resource() {
   if [ -z "${resource_scopes}" ]; then
-    resource_scopes="access"
+    resource_scopes="view"
   fi
   IFS=',' read -ra resource_uris_array <<<"$resource_uris"
   IFS=',' read -ra resource_scopes_array <<<"$resource_scopes"
@@ -123,7 +123,7 @@ while true; do
   --default)
     resource_name="Default Resource"
     resource_uris="/*"
-    resource_scopes="access"
+    resource_scopes="view"
     users=
     roles=
     authenticated=true
@@ -219,8 +219,8 @@ else
     read -rp "> Resource URIs: " resource_uris
     read -rp "> Resource scopes (optional): " resource_scopes
     if [ -z "${resource_scopes}" ]; then
-      echo "Using default scope (access)"
-      resource_scopes="access"
+      echo "Using default scope (view)"
+      resource_scopes="view"
     fi
     read -rp "> Users (optional): " users
     read -rp "> Roles (optional): " roles
