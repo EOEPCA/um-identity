@@ -231,23 +231,21 @@ class KeycloakClient:
             self.assign_realm_roles_to_user(user_id, realm_roles)
         return user_id
 
-    def get_user_token(self, client_id, client_secret, username, password, scope="openid profile"):
+    def get_user_token(self, username, password, scope="openid profile", client_id=None, client_secret=None):
         """Gets a user token using username/password authentication for a certain client.
         """
-        openid_connection = KeycloakOpenIDConnection(
-            server_url=self.server_url,
-            client_id=client_id,
-            client_secret_key=client_secret,
-            realm_name=self.keycloak_admin.realm_name,
-            verify=self.server_url.startswith('https'),
-            timeout=10)
-        client = KeycloakAdmin(connection=openid_connection)
-        return client.connection.keycloak_openid.token(username, password, scope=scope)
-
-    def get_user_token(self, username, password, scope="openid profile"):
-        """Gets a user token using username/password authentication.
-        """
-        return self.keycloak_admin.connection.keycloak_openid.token(username, password, scope=scope)
+        if client_id and client_secret:
+            openid_connection = KeycloakOpenIDConnection(
+                server_url=self.server_url,
+                client_id=client_id,
+                client_secret_key=client_secret,
+                realm_name=self.keycloak_admin.realm_name,
+                verify=self.server_url.startswith('https'),
+                timeout=10)
+            client = KeycloakAdmin(connection=openid_connection)
+            return client.connection.keycloak_openid.token(username, password, scope=scope)
+        else:
+            return self.keycloak_admin.connection.keycloak_openid.token(username, password, scope=scope)
 
     def get_resources(self, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
