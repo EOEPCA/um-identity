@@ -5,6 +5,7 @@ from keycloak.exceptions import raise_error_from_response, KeycloakGetError, Key
 
 logger = logging.getLogger('um-identity-service')
 
+
 class KeycloakClient:
 
     def __init__(self, server_url, realm, username, password):
@@ -50,7 +51,8 @@ class KeycloakClient:
 
     def register_resource(self, client_id, resource, skip_exists=False):
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        response = self.keycloak_admin.create_client_authz_resource(client_id=_client_id, payload=resource, skip_exists=skip_exists)
+        response = self.keycloak_admin.create_client_authz_resource(client_id=_client_id, payload=resource,
+                                                                    skip_exists=skip_exists)
         logger.info('Created resource:\n' + json.dumps(resource, indent=2))
         logger.info('Response: ' + str(response))
         return response
@@ -204,8 +206,8 @@ class KeycloakClient:
         response = []
         for permission in permissions:
             r = self.keycloak_admin.create_client_authz_resource_based_permission(client_id=_client_id,
-                                                                                         payload=permission,
-                                                                                         skip_exists=skip_exists)
+                                                                                  payload=permission,
+                                                                                  skip_exists=skip_exists)
             logger.info("Creating resource permission: " + json.dumps(permission, indent=2))
             logger.info("Response: " + str(r))
             response.append(r)
@@ -229,10 +231,23 @@ class KeycloakClient:
             self.assign_realm_roles_to_user(user_id, realm_roles)
         return user_id
 
-    def get_user_token(self, username, password):
+    def get_user_token(self, client_id, client_secret, username, password, scope="openid profile"):
+        """Gets a user token using username/password authentication for a certain client.
+        """
+        openid_connection = KeycloakOpenIDConnection(
+            server_url=self.server_url,
+            client_id=client_id,
+            client_secret_key=client_secret,
+            realm_name=self.keycloak_admin.realm_name,
+            verify=self.server_url.startswith('https'),
+            timeout=10)
+        client = KeycloakAdmin(connection=openid_connection)
+        return client.connection.keycloak_openid.token(username, password, scope)
+
+    def get_user_token(self, username, password, scope="openid profile"):
         """Gets a user token using username/password authentication.
         """
-        return self.keycloak_admin.connection.keycloak_openid.token(username, password, scope="openid profile")
+        return self.keycloak_admin.connection.keycloak_openid.token(username, password, scope)
 
     def get_resources(self, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
@@ -260,8 +275,8 @@ class KeycloakClient:
             timeout=10)
         client_uma = KeycloakUMA(connection=openid_connection)
         return client_uma.resource_set_list_ids(name=name, exact_name=exact_name, uri=uri, owner=owner,
-                                                       resource_type=resource_type, scope=scope, first=first,
-                                                       maximum=maximum)
+                                                resource_type=resource_type, scope=scope, first=first,
+                                                maximum=maximum)
 
     def __query_resources(self,
                           client_id,
@@ -397,7 +412,8 @@ class KeycloakClient:
             "name": role,
             "clientRole": True
         }
-        return self.keycloak_admin.create_client_role(client_role_id=client_id, payload=payload, skip_exists=skip_exists)
+        return self.keycloak_admin.create_client_role(client_role_id=client_id, payload=payload,
+                                                      skip_exists=skip_exists)
 
     def __get_service_account_user(self, client_id: str):
         data_raw = self.keycloak_admin.connection.raw_get(
@@ -468,7 +484,8 @@ class KeycloakClient:
 
     def create_client_authz_resource_based_permission(self, client_id, payload, skip_exists=False):
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        return self.keycloak_admin.create_client_authz_resource_based_permission(_client_id, payload, skip_exists=skip_exists)
+        return self.keycloak_admin.create_client_authz_resource_based_permission(_client_id, payload,
+                                                                                 skip_exists=skip_exists)
 
     def update_client_management_permissions(self, client_id, payload):
         _client_id = self.keycloak_admin.get_client_id(client_id)
@@ -555,7 +572,6 @@ class KeycloakClient:
         data_raw = connection.raw_post(client_uma.uma_well_known["token_endpoint"], data=payload)
         return raise_error_from_response(data_raw, KeycloakPostError)
 
-
     def create_permission_ticket(self, resources: [str]):
         payload = [
             {"resource_id": resource} for resource in resources
@@ -567,14 +583,13 @@ class KeycloakClient:
             data_raw, KeycloakPostError
         )
 
-    def get_rpt(self, client_id, client_secret, token, ticket):
+    def get_rpt(self, client_id, client_secret, uri, token, ticket):
         payload = {
-            "claim_token_format": "http://openid.net/specs/openid-connect-core-1_0.html#IDToken",
             "grant_type": "urn:ietf:params:oauth:grant-type:uma-ticket",
-            "claim_token": token,
+            "audience": client_id,
             "ticket": ticket,
-            "client_id": client_id,
-            "client_secret": client_secret
+            "permission": uri,
+            "permission_resource_format": "uri"
         }
         params_path = {
             "realm-name": self.realm
@@ -589,5 +604,6 @@ class KeycloakClient:
         client_uma = KeycloakUMA(connection=openid_connection)
         connection = ConnectionManager(client_uma.connection.base_url)
         connection.add_param_headers("Content-Type", "application/x-www-form-urlencoded")
+        connection.add_param_headers("Authorization", "Bearer " + token)
         data = connection.raw_post(urls_patterns.URL_TOKEN.format(**params_path), data=payload)
         return raise_error_from_response(data, KeycloakPostError)
