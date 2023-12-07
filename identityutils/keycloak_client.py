@@ -572,13 +572,21 @@ class KeycloakClient:
         data_raw = connection.raw_post(client_uma.uma_well_known["token_endpoint"], data=payload)
         return raise_error_from_response(data_raw, KeycloakPostError)
 
-    def create_permission_ticket(self, resources: [str]):
+    def create_permission_ticket(self, client_id, client_secret, resources: [str]):
+        openid_connection = KeycloakOpenIDConnection(
+            server_url=self.server_url,
+            client_id=client_id,
+            client_secret_key=client_secret,
+            realm_name=self.keycloak_admin.realm_name,
+            verify=self.server_url.startswith('https'),
+            timeout=10)
+        client = KeycloakAdmin(connection=openid_connection)
         payload = [
             {"resource_id": resource} for resource in resources
         ]
         params_path = {"realm-name": self.realm}
         url = "/realms/{realm-name}/authz/protection/permission"
-        data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(payload))
+        data_raw = client.raw_post(url.format(**params_path), data=json.dumps(payload))
         return raise_error_from_response(
             data_raw, KeycloakPostError
         )
