@@ -4,13 +4,11 @@ args_count=$#
 
 usage="
 Add a client with protected resources.
-$(basename "$0") [-h] [-e] [-u] [-p] [-t | --token t] --id id [--name name] [--default] [--authenticated] [--resource name] [--uris u1,u2] [--scopes s1,s2] [--users u1,u2] [--roles r1,r2]
+$(basename "$0") [-h] [-e] [-t | --token t] --id id [--name name] [--default] [--authenticated] [--resource name] [--uris u1,u2] [--scopes s1,s2] [--users u1,u2] [--roles r1,r2]
 
 where:
     -h                    show help message
     -e                    enviroment - local, develop, demo, production - defaults to local
-    -u                    username used for authentication
-    -p                    password used for authentication
     -t or --token         access token used for authentication
     --id                  client id
     --name                client name
@@ -23,7 +21,7 @@ where:
     --roles               role names with access to the resource - separated by comma (,)
 "
 
-TEMP=$(getopt -o he:u:p:t: --long id:,name:,description:,default,authenticated,resource:,uris:,scopes:,users:,roles: \
+TEMP=$(getopt -o he:t: --long id:,name:,description:,default,authenticated,resource:,uris:,scopes:,users:,roles: \
   -n "$(basename "$0")" -- "$@")
 
 if [ $? != 0 ]; then
@@ -153,14 +151,6 @@ while true; do
     environment="$2"
     shift 2
     ;;
-  -u)
-    username="$2"
-    shift 2
-    ;;
-  -p)
-    password="$2"
-    shift 2
-    ;;
   -t | --token)
     access_token="$2"
     shift 2
@@ -189,25 +179,16 @@ else
   fi
   # no args passed, ask for input
   if [ "$environment" != "local" ]; then
-    read -rp "> Username (optional): " username
-      read -rsp "> Password (optional): " password
-      if [ -n "$password" ]; then
-        echo "*********"
-      else
-        echo ""
-      fi
-      if [ -z "$username" ] && [ -z "$password" ]; then
-        read -rsp "> Access token: " access_token
-        if [ -n "$access_token" ]; then
-          echo "******************"
-        else
-          echo ""
-        fi
-      fi
-      if [ -z "$username" ] && [ -z "$password" ] && [ -z "$access_token" ]; then
-        echo "Authentication is required"
-        exit 1
-      fi
+    read -rsp "> Access token: " access_token
+    if [ -n "$access_token" ]; then
+      echo "******************"
+    else
+      echo ""
+    fi
+    if [ -z "$access_token" ]; then
+      echo "Authentication is required"
+      exit 1
+    fi
   fi
   read -rp "> Client Id: " client_id
   read -rp "> Client Name (optional): " client_name
@@ -236,7 +217,7 @@ else
 fi
 
 if [ "$environment" != "local" ]; then
-  if [ -z "$username" ] && [ -z "$password" ] && [ -z "$access_token" ]; then
+  if [ -z "$access_token" ]; then
     echo "> Authentication is required"
     exit 1
   fi
@@ -279,12 +260,7 @@ echo "Adding client"
 echo "$endpoint"
 echo "$payload"
 echo ""
-if [[ -n "$username" && -n "$password" ]]; then
-  curl -i \
-    --user "$username:$password" \
-    -H "Content-Type: application/json" \
-    -X POST --data "$payload" "$endpoint"
-elif [ -n "$access_token" ]; then
+if [ -n "$access_token" ]; then
   curl -i \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $access_token" \
