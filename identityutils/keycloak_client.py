@@ -75,7 +75,7 @@ class KeycloakClient:
         data_raw = self.keycloak_admin.connection.raw_delete(url.format(**params_path))
         return raise_error_from_response(data_raw, KeycloakPutError)
 
-    def delete_policies(self, policies, client_id):
+    def delete_policies(self, client_id, policies):
         if not isinstance(policies, list):
             policies = [policies]
             logger.info("Deleting policies: " + str(policies))
