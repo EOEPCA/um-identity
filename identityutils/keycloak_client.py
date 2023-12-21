@@ -1,9 +1,10 @@
 import json
 import logging
-from keycloak import KeycloakOpenIDConnection, KeycloakAdmin, urls_patterns
+from keycloak import KeycloakOpenIDConnection, KeycloakAdmin, KeycloakUMA, urls_patterns, ConnectionManager
 from keycloak.exceptions import raise_error_from_response, KeycloakGetError, KeycloakPostError, KeycloakPutError
 
 logger = logging.getLogger('um-identity-service')
+
 
 class KeycloakClient:
 
@@ -17,45 +18,46 @@ class KeycloakClient:
             verify=self.server_url.startswith('https'),
             timeout=10)
         self.keycloak_admin = KeycloakAdmin(connection=openid_connection)
-        # TODO init keycloak_uma
-        self.keycloak_uma = None
         self.set_realm(realm)
-        # we have one admin client to do admin REST API calls
         admin_client_id = self.keycloak_admin.get_client_id('admin-cli')
-        self.admin_client = self.keycloak_admin.get_client(admin_client_id)
+        admin_client = self.keycloak_admin.get_client(admin_client_id)
         openid_connection = KeycloakOpenIDConnection(
             server_url=self.server_url,
             user_realm_name="master",
             realm_name=self.realm,
             username=self.keycloak_admin.username,
             password=self.keycloak_admin.password,
-            client_id=self.admin_client.get('clientId'),
+            client_id=admin_client.get('clientId'),
             verify=self.server_url.startswith('https'),
             timeout=10)
         self.keycloak_admin = KeycloakAdmin(connection=openid_connection)
 
-    def set_realm(self, realm):
+    def set_realm(self, realm, skip_exists=True):
         if realm != 'master':
-            self.keycloak_admin.create_realm(payload={"realm": self.realm, "enabled": True}, skip_exists=True)
+            self.keycloak_admin.create_realm(payload={"realm": self.realm, "enabled": True}, skip_exists=skip_exists)
         self.keycloak_admin.realm_name = self.realm
 
     def import_realm(self, realm: dict) -> dict:
         return self.keycloak_admin.import_realm(realm)
 
-    def register_resources(self, resources):
+    def register_resources(self, client_id, resources, skip_exists=False):
         if not isinstance(resources, list):
             resources = [resources]
+        response = []
         for resource in resources:
-            self.register_resource(resource)
+            r = self.register_resource(client_id, resource, skip_exists)
+            response.append(r)
+        return response
 
-    def register_resource(self, resource, client_id):
+    def register_resource(self, client_id, resource, skip_exists=False):
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        response = self.keycloak_admin.create_client_authz_resource(client_id=_client_id, payload=resource)
+        response = self.keycloak_admin.create_client_authz_resource(client_id=_client_id, payload=resource,
+                                                                    skip_exists=skip_exists)
         logger.info('Created resource:\n' + json.dumps(resource, indent=2))
         logger.info('Response: ' + str(response))
         return response
 
-    def update_resource(self, resource_id, resource, client_id):
+    def update_resource(self, client_id, resource_id, resource):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         if "_id" not in resource:
             resource["_id"] = resource_id
@@ -89,32 +91,17 @@ class KeycloakClient:
         for d in delete_policies:
             self.keycloak_admin.delete_client_authz_policy(client_id=_client_id, policy_id=d.get('id'))
 
-    def __register_policy(self, policy, register_f, client_id):
-        _client_id = self.keycloak_admin.get_client_id(client_id)
-        logger.info("Creating policy:\n" + json.dumps(policy, indent=2))
-        response = register_f(client_id=_client_id, payload=policy)
-        logger.info("Response: " + str(response))
-        return response
-
-    def __register_policy_send_post(self, policy_type, client_id, payload):
-        params_path = {"realm-name": self.realm, "id": client_id}
-        url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
-        data_raw = self.keycloak_admin.connection.raw_post(url.format(**params_path), data=json.dumps(payload))
-        return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201]
-        )
-
-    def register_aggregated_policy(self, policy, client_id):
+    def register_aggregated_policy(self, client_id, policy, skip_exists=False):
         policy_type = "aggregate"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201, 409]
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=skip_exists
         )
 
-    def register_client_policy(self, policy, client_id):
+    def register_client_policy(self, client_id, policy, skip_exists=False):
         policy_type = "client"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         policy["clients"] = [client_id]
@@ -122,10 +109,10 @@ class KeycloakClient:
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201, 409]
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=skip_exists
         )
 
-    def register_client_scope_policy(self, policy, client_id):
+    def register_client_scope_policy(self, client_id, policy, skip_exists=False):
         policy_type = "client-scope"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         policy["owner"] = client_id
@@ -133,30 +120,30 @@ class KeycloakClient:
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201, 409]
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=skip_exists
         )
 
-    def register_group_policy(self, policy, client_id):
+    def register_group_policy(self, client_id, policy, skip_exists=False):
         policy_type = "group"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201, 409]
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=skip_exists
         )
 
-    def register_regex_policy(self, policy, client_id):
+    def register_regex_policy(self, client_id, policy, skip_exists=False):
         policy_type = "regex"
         _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201, 409]
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=skip_exists
         )
 
-    def register_role_policy(self, policy, client_id):
+    def register_role_policy(self, client_id, policy, skip_exists=False):
         policy_type = "role"
         if not isinstance(policy["roles"], list):
             policy["roles"] = [policy["roles"]]
@@ -165,10 +152,10 @@ class KeycloakClient:
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201, 409]
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=skip_exists
         )
 
-    def register_time_policy(self, policy, client_id):
+    def register_time_policy(self, client_id, policy, skip_exists=False):
         # time can be one of:
         # "notAfter":"1970-01-01 00:00:00"
         # "notBefore":"1970-01-01 00:00:00"
@@ -188,10 +175,10 @@ class KeycloakClient:
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201, 409]
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=skip_exists
         )
 
-    def register_user_policy(self, policy, client_id):
+    def register_user_policy(self, client_id, policy, skip_exists=False):
         if not isinstance(policy['users'], list):
             policy['users'] = [policy['users']]
         policy_type = "user"
@@ -200,29 +187,33 @@ class KeycloakClient:
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201, 409]
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=skip_exists
         )
-    
-    def register_general_policy(self, policy, client_id, policy_type):
+
+    def register_general_policy(self, policy, client_id, policy_type, skip_exists=False):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/policy/" + policy_type + "?max=-1"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(policy))
         return raise_error_from_response(
-            data_raw, KeycloakPostError, expected_codes=[201, 409]
+            data_raw, KeycloakPostError, expected_codes=[201, 409], skip_exists=skip_exists
         )
 
-    def assign_resources_permissions(self, permissions, client_id):
+    def assign_resources_permissions(self, client_id, permissions, skip_exists=False):
         if not isinstance(permissions, list):
             permissions = [permissions]
         _client_id = self.keycloak_admin.get_client_id(client_id)
+        response = []
         for permission in permissions:
-            response = self.keycloak_admin.create_client_authz_resource_based_permission(client_id=_client_id,
-                                                                                         payload=permission)
+            r = self.keycloak_admin.create_client_authz_resource_based_permission(client_id=_client_id,
+                                                                                  payload=permission,
+                                                                                  skip_exists=skip_exists)
             logger.info("Creating resource permission: " + json.dumps(permission, indent=2))
-            logger.info("Response: " + str(response))
+            logger.info("Response: " + str(r))
+            response.append(r)
+        return response
 
-    def create_user(self, username, password, realm_roles=None) -> str:
+    def create_user(self, username, password, realm_roles=None, exist_ok=True) -> str:
         if realm_roles is None:
             realm_roles = []
         if not isinstance(realm_roles, list):
@@ -232,7 +223,7 @@ class KeycloakClient:
             "enabled": True
         }
         logger.info('Registering user: ' + json.dumps(payload, indent=2))
-        user_id = self.keycloak_admin.create_user(payload, exist_ok=True)
+        user_id = self.keycloak_admin.create_user(payload, exist_ok=exist_ok)
         logger.info('Created user: ' + str(user_id))
         logger.info("Changing password for user: " + str(user_id))
         self.keycloak_admin.set_user_password(user_id, password, temporary=False)
@@ -240,16 +231,55 @@ class KeycloakClient:
             self.assign_realm_roles_to_user(user_id, realm_roles)
         return user_id
 
-    def get_user_token(self, username, password, openid):
-        """Gets a user token using username/password authentication.
+    def get_user_token(self, username, password, scope="openid profile", client_id=None, client_secret=None):
+        """Gets a user token using username/password authentication for a certain client.
         """
-        return openid.token(username, password, scope="openid profile")
+        if client_id and client_secret:
+            openid_connection = KeycloakOpenIDConnection(
+                server_url=self.server_url,
+                client_id=client_id,
+                client_secret_key=client_secret,
+                realm_name=self.keycloak_admin.realm_name,
+                verify=self.server_url.startswith('https'),
+                timeout=10)
+            client = KeycloakAdmin(connection=openid_connection)
+            return client.connection.keycloak_openid.token(username, password, scope=scope)
+        else:
+            return self.keycloak_admin.connection.keycloak_openid.token(username, password, scope=scope)
 
     def get_resources(self, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         return self.keycloak_admin.get_client_authz_resources(_client_id)
 
-    def __query_resources(self, name: str = "",
+    def get_resource_id(self,
+                        client_id,
+                        client_secret,
+                        name: str = "",
+                        exact_name: bool = False,
+                        uri: str = "",
+                        owner: str = "",
+                        resource_type: str = "",
+                        scope: str = "",
+                        first: int = 0,
+                        maximum: int = -1, ) -> [str]:
+        """Gets a resource id from attributes
+        """
+        openid_connection = KeycloakOpenIDConnection(
+            server_url=self.server_url,
+            client_id=client_id,
+            client_secret_key=client_secret,
+            realm_name=self.keycloak_admin.realm_name,
+            verify=self.server_url.startswith('https'),
+            timeout=10)
+        client_uma = KeycloakUMA(connection=openid_connection)
+        return client_uma.resource_set_list_ids(name=name, exact_name=exact_name, uri=uri, owner=owner,
+                                                resource_type=resource_type, scope=scope, first=first,
+                                                maximum=maximum)
+
+    def __query_resources(self,
+                          client_id,
+                          client_secret,
+                          name: str = "",
                           exact_name: bool = False,
                           uri: str = "",
                           owner: str = "",
@@ -300,22 +330,46 @@ class KeycloakClient:
             query["max"] = maximum
         query["deep"] = True
 
-        data_raw = self.keycloak_uma.connection.raw_get(
-            self.keycloak_uma.uma_well_known["resource_registration_endpoint"], **query
+        openid_connection = KeycloakOpenIDConnection(
+            server_url=self.server_url,
+            client_id=client_id,
+            client_secret_key=client_secret,
+            realm_name=self.keycloak_admin.realm_name,
+            verify=self.server_url.startswith('https'),
+            timeout=10)
+        client_uma = KeycloakUMA(connection=openid_connection)
+        data_raw = client_uma.connection.raw_get(
+            client_uma.uma_well_known["resource_registration_endpoint"], **query
         )
         return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[200])
 
-    def get_resource(self, resource_id: str):
-        return self.keycloak_uma.resource_set_read(resource_id)
+    def get_resource(self, client_id, client_secret, resource_id: str):
+        openid_connection = KeycloakOpenIDConnection(
+            server_url=self.server_url,
+            client_id=client_id,
+            client_secret_key=client_secret,
+            realm_name=self.keycloak_admin.realm_name,
+            verify=self.server_url.startswith('https'),
+            timeout=10)
+        client_uma = KeycloakUMA(connection=openid_connection)
+        return client_uma.resource_set_read(resource_id)
 
-    def get_permission_ticket(self, resources: list[str]):
+    def get_permission_ticket(self, client_id, client_secret, resources: list[str]):
         if not isinstance(resources, list):
             resources = [resources]
         payload = [
             {"resource_id": resource} for resource in resources
         ]
-        data = self.keycloak_uma.connection.raw_post(
-            f"${self.keycloak_uma.connection.base_url}realms/{self.realm}/authz/protection/permission",
+        openid_connection = KeycloakOpenIDConnection(
+            server_url=self.server_url,
+            client_id=client_id,
+            client_secret_key=client_secret,
+            realm_name=self.keycloak_admin.realm_name,
+            verify=self.server_url.startswith('https'),
+            timeout=10)
+        client_uma = KeycloakUMA(connection=openid_connection)
+        data = client_uma.connection.raw_post(
+            f"${client_uma.connection.base_url}realms/{self.realm}/authz/protection/permission",
             data=json.dumps(payload)
         )
         return raise_error_from_response(data, KeycloakPostError)
@@ -323,19 +377,19 @@ class KeycloakClient:
     def get_user_id(self, username) -> str:
         return self.keycloak_admin.get_user_id(username)
 
-    def create_realm_role(self, role: str) -> str:
+    def create_realm_role(self, role: str, skip_exists=True) -> str:
         payload = {
             "name": role,
             "clientRole": False
         }
         logger.info("Creating realm role: " + json.dumps(payload, indent=2))
-        return self.keycloak_admin.create_realm_role(payload=payload, skip_exists=True)
+        return self.keycloak_admin.create_realm_role(payload=payload, skip_exists=skip_exists)
 
-    def assign_realm_roles_to_user(self, user_id: str, roles: list[str]):
+    def assign_realm_roles_to_user(self, user_id: str, roles: list[str], skip_exists=True):
         if not isinstance(roles, list):
             roles = [roles]
         for r in roles:
-            created_role = self.create_realm_role(r)
+            created_role = self.create_realm_role(r, skip_exists)
             logger.info("Created realm role: " + str(created_role))
         all_roles = self.keycloak_admin.get_realm_roles(brief_representation=False)
         realm_roles = list(filter(lambda role: role.get('name') in roles, all_roles))
@@ -349,14 +403,15 @@ class KeycloakClient:
             } for role in realm_roles
         ]
         logger.info('Assigning roles to user ' + user_id + ':\n' + json.dumps(realm_roles, indent=2))
-        self.keycloak_admin.assign_realm_roles(user_id=user_id, roles=realm_roles)
+        return self.keycloak_admin.assign_realm_roles(user_id=user_id, roles=realm_roles)
 
-    def create_client_role(self, client_id: str, role: str) -> str:
+    def create_client_role(self, client_id: str, role: str, skip_exists=True) -> str:
         payload = {
             "name": role,
             "clientRole": True
         }
-        return self.keycloak_admin.create_client_role(client_role_id=client_id, payload=payload, skip_exists=True)
+        return self.keycloak_admin.create_client_role(client_role_id=client_id, payload=payload,
+                                                      skip_exists=skip_exists)
 
     def __get_service_account_user(self, client_id: str):
         data_raw = self.keycloak_admin.connection.raw_get(
@@ -366,13 +421,23 @@ class KeycloakClient:
         )
 
     def get_policies(self,
+                     client_id,
+                     client_secret,
                      resource: str = "",
                      name: str = "",
                      scope: str = "",
                      first: int = 0,
                      maximum: int = -1, ) -> list[str]:
 
-        return self.keycloak_uma.policy_query(resource, name, scope, first, maximum)
+        openid_connection = KeycloakOpenIDConnection(
+            server_url=self.server_url,
+            client_id=client_id,
+            client_secret_key=client_secret,
+            realm_name=self.keycloak_admin.realm_name,
+            verify=self.server_url.startswith('https'),
+            timeout=10)
+        client_uma = KeycloakUMA(connection=openid_connection)
+        return client_uma.policy_query(resource, name, scope, first, maximum)
 
     def get_client_authz_policies(self, client_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
@@ -388,7 +453,7 @@ class KeycloakClient:
             data_raw, KeycloakPostError
         )
 
-    def delete_policy(self, policy_id, client_id):
+    def delete_policy(self, client_id, policy_id):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         return self.keycloak_admin.delete_client_authz_policy(_client_id, policy_id)
 
@@ -415,9 +480,10 @@ class KeycloakClient:
     # def create_client_authz_scope_based_permission(self, client_id, payload):
     #    return self.keycloak_admin.create_client_authz_scope_based_permission(client_id, payload)
 
-    def create_client_authz_resource_based_permission(self, client_id, payload):
+    def create_client_authz_resource_based_permission(self, client_id, payload, skip_exists=False):
         _client_id = self.keycloak_admin.get_client_id(client_id)
-        return self.keycloak_admin.create_client_authz_resource_based_permission(_client_id, payload)
+        return self.keycloak_admin.create_client_authz_resource_based_permission(_client_id, payload,
+                                                                                 skip_exists=skip_exists)
 
     def update_client_management_permissions(self, client_id, payload):
         _client_id = self.keycloak_admin.get_client_id(client_id)
@@ -444,13 +510,13 @@ class KeycloakClient:
             data_raw, KeycloakGetError
         )
 
-    def create_client_scopes(self, client_id, payload):
+    def create_client_scopes(self, client_id, payload, skip_exists=False):
         _client_id = self.keycloak_admin.get_client_id(client_id)
         params_path = {"realm-name": self.realm, "id": _client_id}
         url = urls_patterns.URL_ADMIN_CLIENT_AUTHZ + "/scope"
         data_raw = self.keycloak_admin.raw_post(url.format(**params_path), data=json.dumps(payload))
         return raise_error_from_response(
-            data_raw, KeycloakPostError
+            data_raw, KeycloakPostError, skip_exists=skip_exists
         )
 
     def update_client_scopes(self, client_id, scope_id, payload):
@@ -490,3 +556,68 @@ class KeycloakClient:
             name: name
         }
         return self.keycloak_admin.create_group(payload=payload, skip_exists=skip_exists)
+
+    def generate_protection_pat(self, client_id, client_secret):
+        """Generate a personal access token
+        """
+        payload = {
+            "grant_type": "client_credentials",
+            "client_id": client_id,
+            "client_secret": client_secret,
+        }
+        openid_connection = KeycloakOpenIDConnection(
+            server_url=self.server_url,
+            client_id=client_id,
+            client_secret_key=client_secret,
+            realm_name=self.keycloak_admin.realm_name,
+            verify=self.server_url.startswith('https'),
+            timeout=10)
+        client_uma = KeycloakUMA(connection=openid_connection)
+        connection = ConnectionManager(client_uma.connection.base_url)
+        connection.add_param_headers("Content-Type", "application/x-www-form-urlencoded")
+        data_raw = connection.raw_post(client_uma.uma_well_known["token_endpoint"], data=payload)
+        return raise_error_from_response(data_raw, KeycloakPostError)
+
+    def create_permission_ticket(self, client_id, client_secret, resources: [str]):
+        openid_connection = KeycloakOpenIDConnection(
+            server_url=self.server_url,
+            client_id=client_id,
+            client_secret_key=client_secret,
+            realm_name=self.keycloak_admin.realm_name,
+            verify=self.server_url.startswith('https'),
+            timeout=10)
+        client = KeycloakAdmin(connection=openid_connection)
+        payload = [
+            {"resource_id": resource} for resource in resources
+        ]
+        params_path = {"realm-name": self.realm}
+        url = "/realms/{realm-name}/authz/protection/permission"
+        data_raw = client.raw_post(url.format(**params_path), data=json.dumps(payload))
+        return raise_error_from_response(
+            data_raw, KeycloakPostError
+        )
+
+    def get_rpt(self, client_id, client_secret, uri, token, ticket):
+        payload = {
+            "grant_type": "urn:ietf:params:oauth:grant-type:uma-ticket",
+            "audience": client_id,
+            "ticket": ticket,
+            "permission": uri,
+            "permission_resource_format": "uri"
+        }
+        params_path = {
+            "realm-name": self.realm
+        }
+        openid_connection = KeycloakOpenIDConnection(
+            server_url=self.server_url,
+            client_id=client_id,
+            client_secret_key=client_secret,
+            realm_name=self.keycloak_admin.realm_name,
+            verify=self.server_url.startswith('https'),
+            timeout=10)
+        client_uma = KeycloakUMA(connection=openid_connection)
+        connection = ConnectionManager(client_uma.connection.base_url)
+        connection.add_param_headers("Content-Type", "application/x-www-form-urlencoded")
+        connection.add_param_headers("Authorization", "Bearer " + token)
+        data = connection.raw_post(urls_patterns.URL_TOKEN.format(**params_path), data=payload)
+        return raise_error_from_response(data, KeycloakPostError)
