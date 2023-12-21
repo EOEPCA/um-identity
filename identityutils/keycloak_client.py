@@ -549,12 +549,17 @@ class KeycloakClient:
     def create_client(self, payload, skip_exists=True):
         return self.keycloak_admin.create_client(payload=payload, skip_exists=skip_exists)
 
-
     def create_group(self, name, skip_exists=True):
         payload = {
             "name": name
         }
         return self.keycloak_admin.create_group(payload=payload, skip_exists=skip_exists)
+
+    def get_group(self, group_id):
+        return self.keycloak_admin.get_group(group_id=group_id)
+
+    def get_groups(self, query=None):
+        return self.keycloak_admin.get_groups(query=query)
 
     def generate_protection_pat(self, client_id, client_secret):
         """Generate a personal access token
