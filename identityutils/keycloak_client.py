@@ -552,8 +552,8 @@ class KeycloakClient:
 
     def create_group(self, id, name, skip_exists=True):
         payload = {
-            id: id,
-            name: name
+            "id": id,
+            "name": name
         }
         return self.keycloak_admin.create_group(payload=payload, skip_exists=skip_exists)
 
